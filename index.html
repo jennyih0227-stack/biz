@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>躍勇業發組 · 業務管理系統</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--serif:"PingFang TC","Songti TC","Heiti TC",serif;--sans:"PingFang TC","Heiti TC","Microsoft JhengHei",sans-serif;}
+body{font-family:var(--sans);background:#0f1626;color:#FAF6EE;padding:14px;-webkit-text-size-adjust:100%;}
+.wrap{max-width:680px;margin:0 auto;}
+.panel{background:#1B2A4A;border:1px solid rgba(201,168,76,.4);border-radius:16px;padding:16px;margin-bottom:16px;}
+h1{font-family:var(--serif);font-size:20px;color:#C9A84C;letter-spacing:1px;margin-bottom:4px;}
+.hint{font-size:13px;color:#9fb0cc;margin-bottom:12px;line-height:1.6;}
+.tabs{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap;}
+.tab{flex:1;min-width:58px;padding:10px 4px;border-radius:9px;border:1px solid #2E4A7A;background:#0f1626;color:#cfe;font-size:13px;font-family:inherit;cursor:pointer;font-weight:700;}
+.tab.active{background:linear-gradient(90deg,#C9A84C,#A07830);color:#1B2A4A;border-color:#C9A84C;}
+.stat{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.chip{background:#0f1626;border:1px solid #2E4A7A;border-radius:10px;padding:7px 11px;font-size:13px;color:#cfe;}
+.chip b{color:#C9A84C;font-size:16px;}
+.jump{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.jbtn{padding:7px 11px;border-radius:16px;border:1px solid #3a5a92;background:#16233f;color:#cfe;font-size:13px;cursor:pointer;}
+.jbtn:active{background:#C9A84C;color:#1B2A4A;}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0;}
+.bar button{flex:1;min-width:100px;padding:11px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;}
+.b-add{background:#2E4A7A;color:#fff;}
+.b-exp,.b-imp{background:#243a5e;color:#cfe;border:1px solid #3a5a92 !important;}
+.zone{margin-bottom:14px;border:1px solid #243a5e;border-radius:12px;overflow:hidden;scroll-margin-top:14px;}
+.zhead{background:linear-gradient(90deg,#C9A84C,#A07830);color:#1B2A4A;padding:10px 14px;font-weight:900;font-size:17px;display:flex;justify-content:space-between;align-items:center;}
+.zhead .cnt{font-size:13px;font-weight:700;}
+.prow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid #1d2c49;}
+.prow:nth-child(even){background:rgba(250,246,238,.03);}
+.prow .grp{flex:0 0 84px;font-size:13px;color:#C9A84C;font-weight:700;}
+.prow .nm{flex:1;font-size:16px;color:#FAF6EE;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.badge{font-size:11px;padding:2px 7px;border-radius:8px;font-weight:700;}
+.badge.title{background:rgba(201,168,76,.22);color:#E0C868;border:1px solid rgba(201,168,76,.4);}
+.prow .act{display:flex;gap:6px;}
+.prow .act button{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;font-size:15px;}
+.b-edit{background:#243a5e;color:#cfe;}
+.b-del{background:#3a2230;color:#e89;border:1px solid #6a3550 !important;}
+/* 日期篩選 */
+.filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.fbtn{padding:8px 14px;border-radius:18px;border:1px solid #2E4A7A;background:#0f1626;color:#cfe;font-size:13px;cursor:pointer;font-weight:700;}
+.fbtn.active{background:linear-gradient(90deg,#C9A84C,#A07830);color:#1B2A4A;border-color:#C9A84C;}
+.daterange{display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+.daterange input{padding:9px;border-radius:8px;border:1px solid #2E4A7A;background:#0f1626;color:#fff;font-size:14px;font-family:inherit;}
+.daterange span{color:#9fb0cc;font-size:13px;}
+.rankhint{background:rgba(99,160,255,.1);border:1px solid #3a5a92;border-radius:10px;padding:9px 12px;font-size:13px;color:#9fc4ff;margin-bottom:12px;line-height:1.6;}
+.rrow{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #1d2c49;}
+.rrow .rk{flex:0 0 42px;font-family:var(--serif);font-size:25px;font-weight:900;color:#9fb0cc;text-align:center;}
+.rrow.top1 .rk{color:#FFD24A;}.rrow.top2 .rk{color:#D8D8D8;}.rrow.top3 .rk{color:#E0995A;}
+.rrow .who{flex:1;}
+.rrow .who .n{font-size:17px;font-weight:700;color:#FAF6EE;}
+.rrow .who .s{font-size:12px;color:#9fb0cc;margin-top:2px;}
+.rrow .val{text-align:right;}
+.rrow .val .a{font-family:var(--serif);font-size:21px;font-weight:900;color:#C9A84C;}
+.rrow .val .c{font-size:12px;color:#9fb0cc;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;}
+.modal.show{display:flex;}
+.mbox{background:#1B2A4A;border:1px solid #C9A84C;border-radius:14px;padding:20px;width:100%;max-width:440px;max-height:90vh;overflow:auto;}
+.mbox h3{color:#C9A84C;font-size:17px;margin-bottom:14px;}
+.fld{margin-bottom:12px;}
+.fld label{display:block;font-size:13px;color:#C9A84C;margin-bottom:5px;}
+.fld input,.fld select{width:100%;padding:11px;border-radius:8px;border:1px solid #2E4A7A;background:#0f1626;color:#fff;font-size:16px;font-family:inherit;}
+.mbtns{display:flex;gap:10px;margin-top:8px;}
+.mbtns button{flex:1;padding:12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:15px;}
+.b-ok{background:linear-gradient(90deg,#C9A84C,#A07830);color:#1B2A4A;}
+.b-cancel{background:#243a5e;color:#cfe;}
+textarea{width:100%;height:150px;padding:10px;border-radius:8px;border:1px solid #2E4A7A;background:#0f1626;color:#fff;font-size:13px;font-family:monospace;}
+.note{font-size:12px;color:#7d8fad;margin-top:8px;line-height:1.5;}
+.hidden{display:none;}
+.perfrow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #1d2c49;font-size:14px;}
+.perfrow .d{flex:0 0 92px;color:#9fb0cc;}
+.perfrow .n{flex:1;color:#FAF6EE;}
+.perfrow .c{flex:0 0 48px;text-align:center;color:#9fc4ff;}
+.perfrow .a{flex:0 0 92px;text-align:right;color:#C9A84C;font-weight:700;}
+.perfrow .x{flex:0 0 30px;text-align:center;color:#e89;cursor:pointer;}
+.emptyhint{padding:24px;text-align:center;color:#7d8fad;font-size:14px;line-height:1.8;}
+</style>
+</head>
+<body>
+<div id="lockScreen" style="position:fixed;inset:0;background:linear-gradient(165deg,#1B2A4A,#0f1626);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#1B2A4A;border:1px solid #C9A84C;border-radius:16px;padding:30px 24px;max-width:360px;width:100%;text-align:center;">
+    <div style="font-family:'PingFang TC',serif;font-size:22px;color:#C9A84C;font-weight:900;letter-spacing:2px;margin-bottom:6px;">躍勇業發組</div>
+    <div style="font-size:14px;color:#9fb0cc;margin-bottom:20px;">業務管理系統 · 請輸入密碼</div>
+    <input id="pwInput" type="password" inputmode="numeric" placeholder="密碼" style="width:100%;padding:13px;border-radius:10px;border:1px solid #2E4A7A;background:#0f1626;color:#fff;font-size:18px;text-align:center;letter-spacing:4px;margin-bottom:14px;" onkeydown="if(event.key==='Enter')tryUnlock()">
+    <button onclick="tryUnlock()" style="width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(90deg,#C9A84C,#A07830);color:#1B2A4A;font-size:16px;font-weight:900;cursor:pointer;">進入</button>
+    <div id="pwErr" style="color:#e89;font-size:13px;margin-top:10px;height:18px;"></div>
+  </div>
+</div>
+<script>
+const APP_PASSWORD = "1688";
+function tryUnlock(){const v=document.getElementById('pwInput').value;
+  if(v===APP_PASSWORD){document.getElementById('lockScreen').style.display='none';try{sessionStorage.setItem('unlocked','1');}catch(e){}}
+  else{document.getElementById('pwErr').textContent='密碼錯誤';document.getElementById('pwInput').value='';}}
+try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMContentLoaded',()=>{var l=document.getElementById('lockScreen');if(l)l.style.display='none';});}}catch(e){}
+</script>
+<div class="wrap">
+  <div class="panel">
+    <h1>躍勇業發組 · 業務管理系統</h1>
+    <div class="tabs">
+      <button class="tab active" data-v="org" onclick="switchTab('org')">組織表</button>
+      <button class="tab" data-v="perf" onclick="switchTab('perf')">業績</button>
+      <button class="tab" data-v="rPerson" onclick="switchTab('rPerson')">個人</button>
+      <button class="tab" data-v="rGroup" onclick="switchTab('rGroup')">組</button>
+      <button class="tab" data-v="rRep" onclick="switchTab('rRep')">業代</button>
+    </div>
+    <div id="orgTop">
+      <div class="stat" id="stat"></div>
+      <div class="jump" id="jump"></div>
+      <div class="bar">
+        <button class="b-add" onclick="openAdd()">＋ 新增人員</button>
+        <button class="b-exp" onclick="exportAll()">⬆ 匯出備份</button>
+        <button class="b-imp" onclick="openImport('org')">⬇ 匯入名單</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="viewOrg"></div>
+  <div id="viewPerf" class="hidden"></div>
+  <div id="viewRank" class="hidden"></div>
+</div>
+
+<!-- 編輯人員 -->
+<div class="modal" id="editModal"><div class="mbox">
+  <h3 id="editTitle">新增人員</h3>
+  <div class="fld"><label>區</label><select id="fZone"></select></div>
+  <div class="fld"><label>組（留空＝姓名自動產生；填現有組名＝加入該組）</label><input id="fGroup" placeholder="例：芬玲組"></div>
+  <div class="fld"><label>姓名</label><input id="fName" placeholder="例：王小明"></div>
+  <div class="fld"><label>職級（可不選）</label><select id="fTitle">
+    <option value="">（不顯示）</option><option value="經理">經理</option><option value="襄理">襄理</option><option value="主任">主任</option></select></div>
+  <div class="mbtns"><button class="b-cancel" onclick="closeEdit()">取消</button><button class="b-ok" onclick="saveEdit()">儲存</button></div>
+</div></div>
+
+<!-- 新增業績 -->
+<div class="modal" id="perfModal"><div class="mbox">
+  <h3>新增業績</h3>
+  <div class="fld"><label>日期</label><input id="pDate" type="date"></div>
+  <div class="fld"><label>姓名</label><select id="pName"></select></div>
+  <div class="fld"><label>件數</label><input id="pCnt" type="number" inputmode="numeric" value="1"></div>
+  <div class="fld"><label>金額</label><input id="pAmt" type="number" inputmode="numeric" placeholder="例：50000"></div>
+  <div class="mbtns"><button class="b-cancel" onclick="closePerf()">取消</button><button class="b-ok" onclick="savePerf()">新增</button></div>
+</div></div>
+
+<!-- 匯入 -->
+<div class="modal" id="impModal"><div class="mbox">
+  <h3 id="impTitle">匯入</h3>
+  <p class="note" id="impNote" style="margin-bottom:8px"></p>
+  <textarea id="impText"></textarea>
+  <div class="mbtns" style="margin-top:12px"><button class="b-cancel" onclick="closeImport()">取消</button><button class="b-ok" onclick="doImport()">匯入</button></div>
+  <p class="note" id="impFmt"></p>
+</div></div>
+
+<script>
+const ZONES=["勇伯區","美淑區","春美區","淑韻區","振毅區","麗美區","凱雯區","文進區","宜君區"];
+const SEED=[];  // 部署版：名單清空
+const LS='biz_data_v1';
+let people=[], records=[]; let editIdx=-1, curTab='org', impMode='org';
+let filterMode='month'; // today|month|range
+let rangeFrom='', rangeTo='';
+let topN=5, lastRank={title:'',items:[]};
+
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function monthStart(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01';}
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(LS));if(s){people=s.people||[];records=s.records||[];}}catch(e){}
+  if(!people.length){people=SEED.map(([z,g,n])=>({zone:z,group:g,name:n,title:''}));}
+  save();
+}
+function save(){try{localStorage.setItem(LS,JSON.stringify({people,records}));}catch(e){}}
+function autoGroup(name){return name&&name.length>1?name.slice(1)+'組':(name?name+'組':'');}
+function isLeader(p){const key=p.group.endsWith('組')?p.group.slice(0,-1):p.group;return p.name.slice(1)===key||p.name===key;}
+function zoneOrder(){const zs=new Set(people.map(p=>p.zone));return[...ZONES.filter(z=>zs.has(z)),...[...zs].filter(z=>!ZONES.includes(z))];}
+function findP(name){return people.find(p=>p.name===name);}
+
+function switchTab(v){
+  curTab=v;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v===v));
+  document.getElementById('orgTop').classList.toggle('hidden',v!=='org');
+  document.getElementById('viewOrg').classList.toggle('hidden',v!=='org');
+  document.getElementById('viewPerf').classList.toggle('hidden',v!=='perf');
+  document.getElementById('viewRank').classList.toggle('hidden',!(v.startsWith('r')));
+  if(v==='org')renderOrg();
+  else if(v==='perf')renderPerf();
+  else renderRank(v);
+}
+
+/* ---- 組織表 ---- */
+function renderStat(){
+  const groups=new Set(people.map(p=>p.zone+'/'+p.group));
+  const zoneset=new Set(people.map(p=>p.zone));
+  document.getElementById('stat').innerHTML=
+    `<div class="chip">通訊處 <b>${people.length}</b> 人</div><div class="chip"><b>${zoneset.size}</b> 區</div><div class="chip"><b>${groups.size}</b> 組</div><div class="chip">業績 <b>${records.length}</b> 筆</div>`;
+  document.getElementById('jump').innerHTML=zoneOrder().map(z=>`<button class="jbtn" onclick="jumpZone('${z}')">${z}</button>`).join('');
+}
+function jumpZone(z){const el=document.getElementById('zone-'+z);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function renderOrg(){
+  renderStat();
+  let h='';
+  zoneOrder().forEach(z=>{
+    const ps=people.map((p,i)=>({...p,i})).filter(p=>p.zone===z);
+    h+=`<div class="zone" id="zone-${z}"><div class="zhead"><span>${z}</span><span class="cnt">${ps.length} 人</span></div>`;
+    ps.forEach(p=>{
+      const tb=p.title?`<span class="badge title">${p.title}</span>`:'';
+      h+=`<div class="prow"><span class="grp">${p.group}</span><span class="nm">${p.name}${tb}</span>
+        <span class="act"><button class="b-edit" onclick="openEdit(${p.i})">✎</button><button class="b-del" onclick="delP(${p.i})">🗑</button></span></div>`;
+    });
+    h+='</div>';
+  });
+  document.getElementById('viewOrg').innerHTML=h||'<div class="panel">尚無資料。</div>';
+}
+
+/* ---- 業績明細 ---- */
+function renderPerf(){
+  const box=document.getElementById('viewPerf');
+  let h='<div class="panel"><h1>業績明細</h1>'+
+    '<div class="bar" style="margin-bottom:12px"><button class="b-add" onclick="openAddPerf()">＋ 新增業績</button>'+
+    '<button class="b-imp" onclick="openImport(\'perf\')">⬇ 匯入業績</button>'+
+    '<button class="b-exp" onclick="exportPerf()">⬆ 匯出業績</button></div>';
+  if(!records.length){
+    h+='<div class="emptyhint">尚無業績資料。<br>用「匯入業績」貼上資料，或「新增業績」手動加。<br>之後把報表照片/PDF傳給協助轉檔，再匯入即可。</div>';
+  }else{
+    const sorted=[...records].map((r,i)=>({...r,i})).sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0);
+    h+='<div class="perfrow" style="color:#9fb0cc;font-weight:700"><span class="d">日期</span><span class="n">姓名</span><span class="c">件</span><span class="a">金額</span><span class="x"></span></div>';
+    sorted.forEach(r=>{
+      h+=`<div class="perfrow"><span class="d">${r.date}</span><span class="n">${r.name}</span><span class="c">${r.cnt}</span><span class="a">${(r.amt||0).toLocaleString()}</span><span class="x" onclick="delPerf(${r.i})">✕</span></div>`;
+    });
+  }
+  h+='</div>';
+  box.innerHTML=h;
+}
+function openAddPerf(){
+  const sel=document.getElementById('pName');sel.innerHTML='';
+  people.forEach(p=>{const o=document.createElement('option');o.value=p.name;o.textContent=p.name+'（'+p.zone+'）';sel.appendChild(o);});
+  document.getElementById('pDate').value=todayStr();document.getElementById('pCnt').value=1;document.getElementById('pAmt').value='';
+  document.getElementById('perfModal').classList.add('show');
+}
+function closePerf(){document.getElementById('perfModal').classList.remove('show');}
+function savePerf(){
+  const date=document.getElementById('pDate').value;const name=document.getElementById('pName').value;
+  const cnt=parseFloat(document.getElementById('pCnt').value)||0;const amt=parseFloat(document.getElementById('pAmt').value)||0;
+  if(!date||!name){alert('請選日期與姓名');return;}
+  records.push({date,name,cnt,amt});save();renderPerf();closePerf();
+}
+function delPerf(i){if(confirm('刪除這筆業績？')){records.splice(i,1);save();renderPerf();}}
+
+/* ---- 排名（日期篩選）---- */
+function inRange(d){
+  if(filterMode==='today')return d===todayStr();
+  if(filterMode==='month')return d>=monthStart()&&d<=todayStr().slice(0,8)+'31';
+  if(filterMode==='range')return (!rangeFrom||d>=rangeFrom)&&(!rangeTo||d<=rangeTo);
+  return true;
+}
+function filterLabel(){
+  if(filterMode==='today')return '當日（'+todayStr()+'）';
+  if(filterMode==='month')return '當月（'+monthStart().slice(0,7)+'）';
+  return '期間 '+(rangeFrom||'起')+' ~ '+(rangeTo||'迄');
+}
+function aggByName(){
+  const m={};
+  records.filter(r=>inRange(r.date)).forEach(r=>{
+    if(!m[r.name])m[r.name]={amt:0,cnt:0};m[r.name].amt+=(r.amt||0);m[r.name].cnt+=(r.cnt||0);
+  });
+  return m;
+}
+function renderRank(kind){
+  const box=document.getElementById('viewRank');
+  const agg=aggByName();
+  let title,desc,items;
+  if(kind==='rPerson'){
+    title='個人排名';desc='全通訊處每人依金額排。';
+    items=people.map(p=>({name:p.name,sub:p.zone+' · '+p.group,amt:agg[p.name]?.amt||0,cnt:agg[p.name]?.cnt||0}));
+  }else if(kind==='rGroup'){
+    title='組排名';desc='以組為單位＝組長＋組員合計。';
+    const m={};
+    people.forEach(p=>{const k=p.zone+'/'+p.group;if(!m[k])m[k]={name:p.group,sub:p.zone,amt:0,cnt:0,ppl:0};
+      m[k].amt+=agg[p.name]?.amt||0;m[k].cnt+=agg[p.name]?.cnt||0;m[k].ppl++;});
+    items=Object.values(m).map(g=>({...g,sub:g.sub+' · '+g.ppl+' 人'}));
+  }else{
+    title='業務代表排名';desc='僅計組員（非組長）。';
+    items=people.filter(p=>!isLeader(p)).map(p=>({name:p.name,sub:p.zone+' · '+p.group,amt:agg[p.name]?.amt||0,cnt:agg[p.name]?.cnt||0}));
+  }
+  items.sort((a,b)=>b.amt-a.amt);
+  let h='<div class="panel"><h1>'+title+'</h1>';
+  // 日期篩選列
+  h+='<div class="filter">'+
+     `<button class="fbtn ${filterMode==='today'?'active':''}" onclick="setFilter('today')">當日</button>`+
+     `<button class="fbtn ${filterMode==='month'?'active':''}" onclick="setFilter('month')">當月</button>`+
+     `<button class="fbtn ${filterMode==='range'?'active':''}" onclick="setFilter('range')">自訂期間</button></div>`;
+  if(filterMode==='range'){
+    h+=`<div class="daterange"><input type="date" id="rFrom" value="${rangeFrom}" onchange="rangeFrom=this.value;renderRank('${kind}')">`+
+       `<span>~</span><input type="date" id="rTo" value="${rangeTo}" onchange="rangeTo=this.value;renderRank('${kind}')"></div>`;
+  }
+  h+='<div class="rankhint">'+desc+'　目前範圍：<b>'+filterLabel()+'</b></div>';
+  // 出圖控制
+  h+='<div class="filter" style="margin-bottom:8px">'+
+     '<span style="color:#9fb0cc;font-size:13px;align-self:center">出圖人數：</span>'+
+     `<button class="fbtn ${topN===3?'active':''}" onclick="setTopN(3)">前3</button>`+
+     `<button class="fbtn ${topN===5?'active':''}" onclick="setTopN(5)">前5</button>`+
+     `<button class="fbtn ${topN===10?'active':''}" onclick="setTopN(10)">前10</button>`+
+     `<button class="fbtn ${topN===999?'active':''}" onclick="setTopN(999)">全部</button></div>`;
+  h+='<div class="bar" style="margin-bottom:10px"><button class="b-ok" style="flex:1;padding:13px;border-radius:10px;border:none;font-weight:700;cursor:pointer" onclick="makeRankImage()">⬇ 產生排名圖（之後長按儲存）</button></div>';
+  h+='<div id="rankResult" class="result"></div>';
+  const hasData=items.some(x=>x.amt>0);
+  if(!hasData)h+='<div class="emptyhint">此範圍尚無業績資料。</div>';
+  items.forEach((it,i)=>{
+    const cls=it.amt>0?(i===0?'top1':i===1?'top2':i===2?'top3':''):'';
+    h+=`<div class="rrow ${cls}"><div class="rk">${i+1}</div>
+      <div class="who"><div class="n">${it.name}</div><div class="s">${it.sub}</div></div>
+      <div class="val"><div class="a">${it.amt.toLocaleString()}</div><div class="c">${it.cnt} 件</div></div></div>`;
+  });
+  h+='</div>';
+  box.innerHTML=h;
+  lastRank={title,items};
+}
+function setTopN(n){topN=n;renderRank(curTab);}
+function setFilter(m){filterMode=m;if(m==='range'&&!rangeFrom){rangeFrom=monthStart();rangeTo=todayStr();}renderRank(curTab);}
+
+/* ---- 編輯人員 ---- */
+function fillZoneSelect(sel){const s=document.getElementById('fZone');s.innerHTML='';
+  [...new Set([...ZONES,...people.map(p=>p.zone)])].forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z;if(z===sel)o.selected=true;s.appendChild(o);});}
+function openAdd(){editIdx=-1;document.getElementById('editTitle').textContent='新增人員';fillZoneSelect(ZONES[0]);
+  document.getElementById('fGroup').value='';document.getElementById('fName').value='';document.getElementById('fTitle').value='';document.getElementById('editModal').classList.add('show');}
+function openEdit(i){editIdx=i;const p=people[i];document.getElementById('editTitle').textContent='編輯人員';fillZoneSelect(p.zone);
+  document.getElementById('fGroup').value=p.group;document.getElementById('fName').value=p.name;document.getElementById('fTitle').value=p.title||'';document.getElementById('editModal').classList.add('show');}
+function closeEdit(){document.getElementById('editModal').classList.remove('show');}
+function saveEdit(){const z=document.getElementById('fZone').value;const name=document.getElementById('fName').value.trim();
+  if(!name){alert('請輸入姓名');return;}let g=document.getElementById('fGroup').value.trim();if(!g)g=autoGroup(name);
+  const title=document.getElementById('fTitle').value;
+  const rec={zone:z,group:g,name:name,title:title};
+  if(editIdx<0)people.push(rec);else people[editIdx]=rec;save();renderOrg();closeEdit();}
+function delP(i){if(confirm('刪除「'+people[i].name+'」？')){people.splice(i,1);save();renderOrg();}}
+
+/* ---- 匯入/匯出 ---- */
+function openImport(mode){impMode=mode;
+  if(mode==='org'){document.getElementById('impTitle').textContent='匯入名單';
+    document.getElementById('impNote').textContent='貼上備份(JSON)，或每行「區,組,姓名」。匯入會取代名單。';
+    document.getElementById('impText').placeholder='勇伯區,小明組,王小明\n美淑區,美美組,李美美';
+    document.getElementById('impFmt').textContent='建議先匯出備份。';
+  }else{document.getElementById('impTitle').textContent='匯入業績';
+    document.getElementById('impNote').textContent='每行「日期,姓名,件數,金額」。會「累加」到現有業績。';
+    document.getElementById('impText').placeholder='2026-07-01,王小明,2,50000\n2026-07-01,李美美,1,30000';
+    document.getElementById('impFmt').textContent='日期格式 YYYY-MM-DD。姓名須與名單一致。';
+  }
+  document.getElementById('impText').value='';document.getElementById('impModal').classList.add('show');}
+function closeImport(){document.getElementById('impModal').classList.remove('show');}
+function doImport(){
+  const t=document.getElementById('impText').value.trim();if(!t){alert('請貼上內容');return;}
+  if(impMode==='org'){
+    let arr=null;
+    try{const j=JSON.parse(t);if(Array.isArray(j))arr=j.map(o=>({zone:o.zone,group:o.group||autoGroup(o.name),name:o.name,title:o.title||''}));
+      else if(j.people){arr=j.people;if(j.records)records=j.records;}}catch(e){}
+    if(!arr){arr=[];t.split(/\r?\n/).forEach(line=>{const c=line.split(',').map(s=>s.trim());
+      if(c.length>=3&&c[2])arr.push({zone:c[0],group:c[1]||autoGroup(c[2]),name:c[2],title:''});});}
+    if(!arr.length){alert('讀不到有效資料');return;}
+    if(!confirm('將以 '+arr.length+' 筆取代名單，確定？'))return;
+    people=arr;save();renderOrg();closeImport();
+  }else{
+    const add=[];
+    t.split(/\r?\n/).forEach(line=>{const c=line.split(',').map(s=>s.trim());
+      if(c.length>=4&&c[1]){add.push({date:c[0],name:c[1],cnt:parseFloat(c[2])||0,amt:parseFloat(c[3].replace(/,/g,''))||0});}});
+    if(!add.length){alert('讀不到有效資料');return;}
+    if(!confirm('將新增 '+add.length+' 筆業績，確定？'))return;
+    records=records.concat(add);save();renderPerf();closeImport();
+  }
+}
+function exportAll(){const data=JSON.stringify({people,records});dl(data,'業務系統備份_'+todayStr()+'.json');
+  document.getElementById('impText').value=data;alert('已產生完整備份。若未跳下載，可開匯入框長按複製。');}
+function exportPerf(){const lines=['日期,姓名,件數,金額'].concat(records.map(r=>`${r.date},${r.name},${r.cnt},${r.amt}`));
+  dl(lines.join('\n'),'業績明細_'+todayStr()+'.csv');alert('已匯出業績 CSV。');}
+function dl(text,fname){const blob=new Blob([text],{type:'text/plain'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();}
+
+/* ===== 排名出圖（純Canvas離線）===== */
+const SERIF='"PingFang TC","Songti TC","Heiti TC",serif';
+const SANS='"PingFang TC","Heiti TC",sans-serif';
+function rr2(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function makeRankImage(){
+  const all=lastRank.items.filter(x=>x.amt>0);
+  const items=all.slice(0,topN);
+  if(!items.length){alert('此範圍尚無業績資料，無法出圖');return;}
+  const W=1080, rowH=132, headH=470, footH=110;
+  const H=Math.max(1350, headH+items.length*rowH+footH+40);
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const ctx=cv.getContext('2d');
+  // 背景
+  let g=ctx.createLinearGradient(0,0,W*0.4,H);g.addColorStop(0,'#1B2A4A');g.addColorStop(.55,'#2E4A7A');g.addColorStop(1,'#1B2A4A');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(201,168,76,.45)';ctx.lineWidth=2;rr2(ctx,40,40,W-80,H-80,18);ctx.stroke();
+  ctx.textAlign='center';
+  ctx.fillStyle='#E8E0D0';ctx.font='34px '+SANS;ctx.fillText('躍勇業發組',W/2,160);
+  ctx.fillStyle='#fff';ctx.font='900 76px '+SERIF;ctx.fillText(lastRank.title,W/2,260);
+  ctx.fillStyle='#C9A84C';ctx.font='500 32px '+SANS;ctx.fillText(filterLabel(),W/2,330);
+  ctx.strokeStyle='#C9A84C';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/2-75,375);ctx.lineTo(W/2+75,375);ctx.stroke();
+  // 表頭
+  const left=80,right=W-80,tableW=right-left;
+  const colAmt=left+tableW*0.74, colCnt=left+tableW*0.93;
+  ctx.font='28px '+SANS;ctx.fillStyle='#9fb6d8';
+  ctx.textAlign='left';ctx.fillText('名次 / 姓名',left+120,440);
+  ctx.textAlign='center';ctx.fillText('FYC 金額',colAmt,440);ctx.fillText('件數',colCnt,440);
+  // 列
+  const medals=['🥇','🥈','🥉'];
+  let yy=headH;
+  items.forEach((it,i)=>{
+    const top3=i<3;
+    ctx.fillStyle= top3?'rgba(201,168,76,.16)':'rgba(250,246,238,.06)';
+    rr2(ctx,left,yy,tableW,rowH-16,14);ctx.fill();
+    ctx.fillStyle= i===0?'#FFD24A':i===1?'#D8D8D8':i===2?'#E0995A':'#C9A84C';
+    rr2(ctx,left,yy,9,rowH-16,5);ctx.fill();
+    const midY=yy+(rowH-16)/2;ctx.textBaseline='middle';
+    // 名次/獎牌
+    ctx.textAlign='center';
+    if(top3){ctx.font='52px '+SANS;ctx.fillText(medals[i],left+58,midY);}
+    else{ctx.fillStyle='#9fb0cc';ctx.font='900 44px '+SERIF;ctx.fillText(String(i+1),left+58,midY);}
+    // 姓名+區組
+    ctx.textAlign='left';ctx.fillStyle='#FAF6EE';ctx.font='700 48px '+SANS;ctx.fillText(it.name,left+120,midY-14);
+    ctx.fillStyle='#9fb0cc';ctx.font='26px '+SANS;ctx.fillText(it.sub,left+120,midY+30);
+    // 金額
+    ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='900 46px '+SERIF;ctx.fillText(it.amt.toLocaleString(),colAmt,midY);
+    // 件數
+    ctx.fillStyle='#9fc4ff';ctx.font='700 40px '+SERIF;ctx.fillText(String(it.cnt),colCnt,midY);
+    ctx.textBaseline='alphabetic';
+    yy+=rowH;
+  });
+  // 合計
+  const tA=items.reduce((s,x)=>s+x.amt,0), tC=items.reduce((s,x)=>s+x.cnt,0);
+  let tg=ctx.createLinearGradient(left,0,right,0);tg.addColorStop(0,'#C9A84C');tg.addColorStop(1,'#A07830');
+  ctx.fillStyle=tg;rr2(ctx,left,yy,tableW,96,14);ctx.fill();
+  const mY=yy+48;ctx.textBaseline='middle';ctx.fillStyle='#1B2A4A';
+  ctx.textAlign='left';ctx.font='900 42px '+SANS;ctx.fillText('合計',left+40,mY);
+  ctx.textAlign='center';ctx.font='900 46px '+SERIF;ctx.fillText(tA.toLocaleString(),colAmt,mY);
+  ctx.font='900 40px '+SERIF;ctx.fillText(String(tC),colCnt,mY);ctx.textBaseline='alphabetic';
+  // 頁尾
+  ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='32px '+SERIF;ctx.fillText('齊心 · 衝刺 · 共榮',W/2,H-58);
+  // 輸出
+  const url=cv.toDataURL('image/png');
+  document.getElementById('rankResult').innerHTML='<img src="'+url+'" alt="排名圖"><div class="tip">↑ 長按這張圖 → 加入照片 / 儲存影像</div>';
+}
+
+load();renderOrg();
+</script>
+</body>
+</html>
