@@ -95,6 +95,12 @@ textarea{width:100%;height:150px;padding:10px;border-radius:8px;border:1px solid
 .perfrow .a{flex:0 0 92px;text-align:right;color:#C9A84C;font-weight:700;}
 .perfrow .x{flex:0 0 30px;text-align:center;color:#e89;cursor:pointer;}
 .emptyhint{padding:24px;text-align:center;color:#7d8fad;font-size:14px;line-height:1.8;}
+.zmrow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid #1d2c49;}
+.zmrow:nth-child(even){background:rgba(250,246,238,.03);}
+.zmrow .zmg{flex:0 0 70px;font-size:12px;color:#C9A84C;font-weight:700;background:rgba(201,168,76,.1);padding:3px 6px;border-radius:6px;text-align:center;}
+.zmrow .zmn{flex:1;font-size:16px;color:#FFFFFF;font-weight:700;}
+.zmrow .zma{flex:0 0 auto;font-size:16px;color:#C9A84C;font-weight:800;font-family:var(--serif);}
+.zmrow .zmc{flex:0 0 44px;text-align:right;font-size:12px;color:#9fc4ff;}
 .mxtools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;}
 .mxtools .seg{display:inline-flex;border:2px solid #C9A84C;border-radius:9px;overflow:hidden;}
 .mxtools .seg button{border:none;background:#0f1626;color:#cfe;font-family:inherit;font-weight:700;font-size:13px;padding:8px 12px;cursor:pointer;}
@@ -131,6 +137,8 @@ textarea{width:100%;height:150px;padding:10px;border-radius:8px;border:1px solid
 .qrow .qd{flex:1.1;text-align:right;font-size:14px;font-weight:700;}
 .qrow .qd.pos{color:#3FBF6A;}.qrow .qd.neg{color:#E0995A;}
 .qrow.qhead{color:#9fb0cc;font-weight:700;font-size:13px;}
+.months.mxwide{gap:6px;}
+.months.mxwide .mbtn{flex:1;min-width:0;text-align:center;padding:11px 4px;font-size:15px;}
 .qrow.qhead span{font-weight:700;}
 .qrow.qdone{background:rgba(63,191,106,.1);}
 .qrow.qtotal{background:linear-gradient(90deg,rgba(201,168,76,.3),rgba(160,120,48,.3));border-radius:10px;margin-top:8px;font-weight:900;}
@@ -159,12 +167,13 @@ try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMC
     <h1>躍勇業發組 · 業務管理系統</h1>
     <div class="tabs">
       <button class="tab active" data-v="org" onclick="switchTab('org')">組織表</button>
+      <button class="tab" data-v="quota" onclick="switchTab('quota')">責任額</button>
+      <button class="tab" data-v="zone" onclick="switchTab('zone')">各區業績</button>
       <button class="tab" data-v="perf" onclick="switchTab('perf')">業績</button>
       <button class="tab" data-v="matrix" onclick="switchTab('matrix')">每日表</button>
       <button class="tab" data-v="rPerson" onclick="switchTab('rPerson')">個人</button>
       <button class="tab" data-v="rGroup" onclick="switchTab('rGroup')">組</button>
       <button class="tab" data-v="rRep" onclick="switchTab('rRep')">業代</button>
-      <button class="tab" data-v="quota" onclick="switchTab('quota')">責任額</button>
       <button class="tab" data-v="top" onclick="switchTab('top')">TOP會員</button>
     </div>
     <div id="orgTop">
@@ -183,6 +192,7 @@ try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMC
   <div id="viewMatrix" class="hidden"></div>
   <div id="viewRank" class="hidden"></div>
   <div id="viewQuota" class="hidden"></div>
+  <div id="viewZone" class="hidden"></div>
   <div id="viewTop" class="hidden"></div>
 </div>
 
@@ -241,14 +251,15 @@ const QUOTA_PRESET={
 // TOP會員門檻
 const TOP_CNT=4, TOP_FYC=20000;
 let qMonth=7; // 責任額分頁目前月份
-let filterMode='month'; // today|month|range
+let filterMode='month'; // today|month|range|work
 let rangeFrom='', rangeTo='';
+let workFrom='', workTo=''; // 工作月起訖（手動設）
 let topN=5, lastRank={title:'',items:[]};
 
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function monthStart(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01';}
 function load(){
-  try{const s=JSON.parse(localStorage.getItem(LS));if(s){people=s.people||[];records=s.records||[];zoneQuota=s.zoneQuota||{};zoneQuotaM=s.zoneQuotaM||{};}}catch(e){}
+  try{const s=JSON.parse(localStorage.getItem(LS));if(s){people=s.people||[];records=s.records||[];zoneQuota=s.zoneQuota||{};zoneQuotaM=s.zoneQuotaM||{};if(s.workFrom)workFrom=s.workFrom;if(s.workTo)workTo=s.workTo;}}catch(e){}
   if(!people.length){people=SEED.map(([z,g,n])=>({zone:z,group:g,name:n,title:'',active:true}));}
   // 向下相容：補 active
   people.forEach(p=>{ if(p.active===undefined)p.active=true; });
@@ -258,7 +269,7 @@ function load(){
   });
   save();
 }
-function save(){try{localStorage.setItem(LS,JSON.stringify({people,records,zoneQuota,zoneQuotaM}));}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({people,records,zoneQuota,zoneQuotaM,workFrom,workTo}));}catch(e){}}
 function autoGroup(name){return name&&name.length>1?name.slice(1)+'組':(name?name+'組':'');}
 function isLeader(p){const key=p.group.endsWith('組')?p.group.slice(0,-1):p.group;return p.name.slice(1)===key||p.name===key;}
 function zoneOrder(){const zs=new Set(people.map(p=>p.zone));return[...ZONES.filter(z=>zs.has(z)),...[...zs].filter(z=>!ZONES.includes(z))];}
@@ -273,11 +284,13 @@ function switchTab(v){
   document.getElementById('viewMatrix').classList.toggle('hidden',v!=='matrix');
   document.getElementById('viewRank').classList.toggle('hidden',!(v.startsWith('r')));
   document.getElementById('viewQuota').classList.toggle('hidden',v!=='quota');
+  document.getElementById('viewZone').classList.toggle('hidden',v!=='zone');
   document.getElementById('viewTop').classList.toggle('hidden',v!=='top');
   if(v==='org')renderOrg();
   else if(v==='perf')renderPerf();
   else if(v==='matrix')renderMatrix();
   else if(v==='quota')renderQuota();
+  else if(v==='zone')renderZone();
   else if(v==='top')renderTop();
   else renderRank(v);
 }
@@ -361,11 +374,13 @@ function inRange(d){
   if(filterMode==='today')return d===todayStr();
   if(filterMode==='month')return d>=monthStart()&&d<=todayStr().slice(0,8)+'31';
   if(filterMode==='range')return (!rangeFrom||d>=rangeFrom)&&(!rangeTo||d<=rangeTo);
+  if(filterMode==='work')return (!workFrom||d>=workFrom)&&(!workTo||d<=workTo);
   return true;
 }
 function filterLabel(){
   if(filterMode==='today')return '當日（'+todayStr()+'）';
   if(filterMode==='month')return '當月（'+monthStart().slice(0,7)+'）';
+  if(filterMode==='work')return '工作月（'+(workFrom||'起')+' ~ '+(workTo||'迄')+'）';
   return '期間 '+(rangeFrom||'起')+' ~ '+(rangeTo||'迄');
 }
 function aggByName(){
@@ -399,10 +414,15 @@ function renderRank(kind){
   h+='<div class="filter">'+
      `<button class="fbtn ${filterMode==='today'?'active':''}" onclick="setFilter('today')">當日</button>`+
      `<button class="fbtn ${filterMode==='month'?'active':''}" onclick="setFilter('month')">當月</button>`+
+     `<button class="fbtn ${filterMode==='work'?'active':''}" onclick="setFilter('work')">工作月</button>`+
      `<button class="fbtn ${filterMode==='range'?'active':''}" onclick="setFilter('range')">自訂期間</button></div>`;
   if(filterMode==='range'){
     h+=`<div class="daterange"><input type="date" id="rFrom" value="${rangeFrom}" onchange="rangeFrom=this.value;renderRank('${kind}')">`+
        `<span>~</span><input type="date" id="rTo" value="${rangeTo}" onchange="rangeTo=this.value;renderRank('${kind}')"></div>`;
+  }
+  if(filterMode==='work'){
+    h+=`<div class="daterange"><span style="color:#C9A84C;font-size:12px">工作月起訖</span><input type="date" value="${workFrom}" onchange="workFrom=this.value;save();renderRank('${kind}')">`+
+       `<span>~</span><input type="date" value="${workTo}" onchange="workTo=this.value;save();renderRank('${kind}')"></div>`;
   }
   h+='<div class="rankhint">'+desc+'　目前範圍：<b>'+filterLabel()+'</b></div>';
   // 出圖控制
@@ -427,7 +447,11 @@ function renderRank(kind){
   lastRank={title,items};
 }
 function setTopN(n){topN=n;renderRank(curTab);}
-function setFilter(m){filterMode=m;if(m==='range'&&!rangeFrom){rangeFrom=monthStart();rangeTo=todayStr();}renderRank(curTab);}
+function setFilter(m){filterMode=m;
+  if(m==='range'&&!rangeFrom){rangeFrom=monthStart();rangeTo=todayStr();}
+  if(m==='work'&&!workFrom){const d=new Date();const y=d.getFullYear(),mo=d.getMonth();
+    workFrom=new Date(y,mo-1,25).toISOString().slice(0,10);workTo=new Date(y,mo,24).toISOString().slice(0,10);save();}
+  renderRank(curTab);}
 
 /* ---- 責任額（月份制；責任額萬元、達成元，各顯各的）---- */
 function qMonthRange(mk){ // 該工作月對應的日期區間（依年度推算，用今年）
@@ -457,9 +481,9 @@ function renderQuota(){
   const zones=zoneOrder();
   let h='<div class="panel"><h1>各區責任額（萬元）</h1>';
   // 月份切換
-  h+='<div class="months">'+[7,8,9,10,11,12].map(mk=>`<button class="mbtn ${mk===qMonth?'active':''}" onclick="setQMonth(${mk})">${mk}月</button>`).join('')+'</div>';
-  h+='<div class="rankhint">責任額單位<b>萬元</b>（淡黃格可改）；達成為該月業績加總（單位<b>元</b>），自動換算對比。</div>';
-  h+='<div class="qrow qhead"><span class="qz">區</span><span class="qq">責任額<br>(萬)</span><span class="qa">達成<br>(元)</span><span class="qd">達成<br>(萬)</span></div>';
+  h+='<div class="months mxwide">'+[7,8,9,10,11,12].map(mk=>`<button class="mbtn ${mk===qMonth?'active':''}" onclick="setQMonth(${mk})">${mk}月</button>`).join('')+'</div>';
+  h+='<div class="rankhint">責任額單位<b>萬元</b>（淡黃格可改）；達成＝該月業績加總換算萬元；達成率＝達成÷責任額。</div>';
+  h+='<div class="qrow qhead"><span class="qz">區</span><span class="qq">責任額<br>(萬)</span><span class="qa">達成<br>(萬)</span><span class="qd">達成率</span></div>';
   let tA=0;
   zones.forEach(z=>{
     const q=QM.z[z]||0;            // 萬元
@@ -467,18 +491,21 @@ function renderQuota(){
     const aWan=a/10000;            // 達成換算萬元
     tA+=a;
     const done=q>0&&aWan>=q;
+    const rate=q>0?Math.round(aWan/q*100):0;
     h+=`<div class="qrow ${done?'qdone':''}"><span class="qz">${z}</span>`+
        `<input class="qq qinput" type="number" inputmode="decimal" value="${q||''}" placeholder="0" onchange="setQuotaM('${z}',this.value)">`+
-       `<span class="qa">${a.toLocaleString()}</span>`+
-       `<span class="qd ${done?'pos':'neg'}">${fmtWan(a)}${done?' ✔':''}</span></div>`;
+       `<span class="qa">${(Math.round(aWan*10)/10).toLocaleString()}</span>`+
+       `<span class="qd ${done?'pos':'neg'}">${q>0?rate+'%':'—'}${done?' ✔':''}</span></div>`;
   });
   const tQ=zones.reduce((s,z)=>s+(QM.z[z]||0),0); // 萬
   const hq=QM.hq||0; // 通訊處核定(萬)
+  const tAWan=tA/10000;
+  const totRate=hq>0?Math.round(tAWan/hq*100):0;
   h+=`<div class="qrow qtotal"><span class="qz">通訊處(核定)</span>`+
      `<input class="qq qinput" type="number" inputmode="decimal" value="${hq||''}" placeholder="0" onchange="setHqM(this.value)" style="background:#FFF6D8">`+
-     `<span class="qa">${tA.toLocaleString()}</span>`+
-     `<span class="qd">${fmtWan(tA)}萬</span></div>`;
-  h+=`<p class="note">各區責任額加總 ${tQ.toLocaleString()} 萬；通訊處核定 ${hq.toLocaleString()} 萬（核定可與加總略有差異）。</p>`;
+     `<span class="qa">${(Math.round(tAWan*10)/10).toLocaleString()}</span>`+
+     `<span class="qd">${hq>0?totRate+'%':'—'}</span></div>`;
+  h+=`<p class="note">各區責任額加總 ${tQ.toLocaleString()} 萬；通訊處核定 ${hq.toLocaleString()} 萬。</p>`;
   h+='<div class="bar" style="margin-top:12px"><button class="b-ok" style="flex:1;padding:13px;border-radius:10px;border:none;font-weight:700;cursor:pointer" onclick="makeQuotaImage()">⬇ 產生責任額圖</button></div><div id="quotaResult" class="result"></div>';
   h+='</div>';
   box.innerHTML=h;
@@ -501,24 +528,92 @@ function makeQuotaImage(){
   const left=70,right=W-70,tableW=right-left;
   const cz=left+tableW*0.16,cq=left+tableW*0.46,ca=left+tableW*0.74,cd=left+tableW*0.92;
   ctx.font='28px '+SANS;ctx.fillStyle='#9fb6d8';
-  ctx.fillText('區',cz,430);ctx.fillText('責任額(萬)',cq,430);ctx.fillText('達成(萬)',ca,430);ctx.fillText('',cd,430);
+  ctx.fillText('區',cz,430);ctx.fillText('責任額(萬)',cq,430);ctx.fillText('達成(萬)',ca,430);ctx.fillText('達成率',cd,430);
   let yy=headH,tQ=0,tA=0;
-  rows.forEach(r=>{const aw=r.a/10000;tQ+=r.q;tA+=r.a;const done=r.q>0&&aw>=r.q;
+  rows.forEach(r=>{const aw=r.a/10000;tQ+=r.q;tA+=r.a;const done=r.q>0&&aw>=r.q;const rate=r.q>0?Math.round(aw/r.q*100):0;
     ctx.fillStyle=done?'rgba(63,191,106,.14)':'rgba(250,246,238,.06)';rr2(ctx,left,yy,tableW,rowH-14,12);ctx.fill();
     ctx.fillStyle=done?'#3FBF6A':'#C9A84C';rr2(ctx,left,yy,8,rowH-14,4);ctx.fill();
     const midY=yy+(rowH-14)/2;ctx.textBaseline='middle';
     ctx.textAlign='left';ctx.fillStyle='#FAF6EE';ctx.font='700 44px '+SANS;ctx.fillText(r.z,left+40,midY);
     ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='900 46px '+SERIF;ctx.fillText(r.q.toLocaleString(),cq,midY);
-    ctx.fillStyle=done?'#3FBF6A':'#fff';ctx.font='900 44px '+SERIF;ctx.fillText((Math.round(aw*10)/10).toLocaleString()+(done?' ✔':''),ca,midY);
+    ctx.fillStyle=done?'#3FBF6A':'#fff';ctx.font='900 44px '+SERIF;ctx.fillText((Math.round(aw*10)/10).toLocaleString(),ca,midY);
+    ctx.fillStyle=done?'#3FBF6A':'#E0995A';ctx.font='700 38px '+SANS;ctx.fillText(r.q>0?rate+'%':'—',cd,midY);
     ctx.textBaseline='alphabetic';yy+=rowH;});
   const hq=QM.hq||0;let tg=ctx.createLinearGradient(left,0,right,0);tg.addColorStop(0,'#C9A84C');tg.addColorStop(1,'#A07830');
   ctx.fillStyle=tg;rr2(ctx,left,yy,tableW,100,12);ctx.fill();const mY=yy+50;ctx.textBaseline='middle';ctx.fillStyle='#1B2A4A';
   ctx.textAlign='left';ctx.font='900 42px '+SANS;ctx.fillText('通訊處',left+40,mY);
   ctx.textAlign='center';ctx.font='900 44px '+SERIF;ctx.fillText(hq.toLocaleString(),cq,mY);
-  ctx.fillText((Math.round(tA/10000*10)/10).toLocaleString(),ca,mY);ctx.textBaseline='alphabetic';
+  ctx.fillText((Math.round(tA/10000*10)/10).toLocaleString(),ca,mY);
+  const tr=hq>0?Math.round(tA/10000/hq*100):0;ctx.font='900 38px '+SANS;ctx.fillText(hq>0?tr+'%':'—',cd,mY);ctx.textBaseline='alphabetic';
   ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='32px '+SERIF;ctx.fillText('齊心 · 衝刺 · 共榮',W/2,H-56);
   const url=cv.toDataURL('image/png');
   document.getElementById('quotaResult').innerHTML='<img src="'+url+'" alt="責任額圖"><div class="tip">↑ 長按這張圖 → 加入照片 / 儲存影像</div>';
+}
+
+/* ---- 各區業績（各區成員業績＋各區總業績）---- */
+let zoneFilterMode='month';
+function zInRange(d){
+  if(zoneFilterMode==='today')return d===todayStr();
+  if(zoneFilterMode==='month')return d>=monthStart()&&d<=todayStr().slice(0,8)+'31';
+  if(zoneFilterMode==='work')return (!workFrom||d>=workFrom)&&(!workTo||d<=workTo);
+  if(zoneFilterMode==='range')return (!rangeFrom||d>=rangeFrom)&&(!rangeTo||d<=rangeTo);
+  return true;
+}
+function zLabel(){
+  if(zoneFilterMode==='today')return '當日（'+todayStr()+'）';
+  if(zoneFilterMode==='month')return '當月（'+monthStart().slice(0,7)+'）';
+  if(zoneFilterMode==='work')return '工作月（'+(workFrom||'起')+' ~ '+(workTo||'迄')+'）';
+  return '期間 '+(rangeFrom||'起')+' ~ '+(rangeTo||'迄');
+}
+function zAgg(){
+  const m={};
+  records.filter(r=>zInRange(r.date)).forEach(r=>{
+    if(!m[r.name])m[r.name]={amt:0,cnt:0};m[r.name].amt+=(r.amt||0);m[r.name].cnt+=(r.cnt||0);
+  });
+  return m;
+}
+function setZoneFilter(m){zoneFilterMode=m;
+  if(m==='range'&&!rangeFrom){rangeFrom=monthStart();rangeTo=todayStr();}
+  if(m==='work'&&!workFrom){const d=new Date();const y=d.getFullYear(),mo=d.getMonth();
+    workFrom=new Date(y,mo-1,25).toISOString().slice(0,10);workTo=new Date(y,mo,24).toISOString().slice(0,10);save();}
+  renderZone();}
+function renderZone(){
+  const box=document.getElementById('viewZone');
+  const agg=zAgg();
+  let h='<div class="panel"><h1>各區業績</h1>';
+  h+='<div class="filter">'+
+     `<button class="fbtn ${zoneFilterMode==='today'?'active':''}" onclick="setZoneFilter('today')">當日</button>`+
+     `<button class="fbtn ${zoneFilterMode==='month'?'active':''}" onclick="setZoneFilter('month')">當月</button>`+
+     `<button class="fbtn ${zoneFilterMode==='work'?'active':''}" onclick="setZoneFilter('work')">工作月</button>`+
+     `<button class="fbtn ${zoneFilterMode==='range'?'active':''}" onclick="setZoneFilter('range')">自訂期間</button></div>`;
+  if(zoneFilterMode==='range'){
+    h+=`<div class="daterange"><input type="date" value="${rangeFrom}" onchange="rangeFrom=this.value;renderZone()"><span>~</span><input type="date" value="${rangeTo}" onchange="rangeTo=this.value;renderZone()"></div>`;
+  }
+  if(zoneFilterMode==='work'){
+    h+=`<div class="daterange"><span style="color:#C9A84C;font-size:12px">工作月起訖</span><input type="date" value="${workFrom}" onchange="workFrom=this.value;save();renderZone()"><span>~</span><input type="date" value="${workTo}" onchange="workTo=this.value;save();renderZone()"></div>`;
+  }
+  h+='<div class="rankhint">各區成員業績與該區總業績。　範圍：<b>'+zLabel()+'</b></div></div>';
+  // 各區一個卡片
+  const zones=zoneOrder();
+  // 區總業績排序（高到低）
+  const zoneTotals=zones.map(z=>{
+    const ppl=people.filter(p=>p.zone===z);
+    const amt=ppl.reduce((s,p)=>s+(agg[p.name]?.amt||0),0);
+    const cnt=ppl.reduce((s,p)=>s+(agg[p.name]?.cnt||0),0);
+    return {z,ppl,amt,cnt};
+  }).sort((a,b)=>b.amt-a.amt);
+  zoneTotals.forEach(zt=>{
+    h+=`<div class="zone"><div class="zhead"><span>${zt.z}</span><span class="cnt">總業績 ${zt.amt.toLocaleString()} 元 · ${zt.cnt} 件</span></div>`;
+    // 成員依業績排序
+    const mem=zt.ppl.map(p=>({name:p.name,group:p.group,amt:agg[p.name]?.amt||0,cnt:agg[p.name]?.cnt||0}))
+      .sort((a,b)=>b.amt-a.amt);
+    mem.forEach(m=>{
+      h+=`<div class="zmrow"><span class="zmg">${m.group}</span><span class="zmn">${m.name}</span>`+
+         `<span class="zma">${m.amt.toLocaleString()}</span><span class="zmc">${m.cnt}件</span></div>`;
+    });
+    h+='</div>';
+  });
+  box.innerHTML=h;
 }
 
 /* ---- TOP 會員（件數≥4 且 FYC≥20000）---- */
@@ -527,11 +622,13 @@ function topInRange(d){
   if(topFilterMode==='today')return d===todayStr();
   if(topFilterMode==='month')return d>=monthStart()&&d<=todayStr().slice(0,8)+'31';
   if(topFilterMode==='range')return (!rangeFrom||d>=rangeFrom)&&(!rangeTo||d<=rangeTo);
+  if(topFilterMode==='work')return (!workFrom||d>=workFrom)&&(!workTo||d<=workTo);
   return true;
 }
 function topLabel(){
   if(topFilterMode==='today')return '當日（'+todayStr()+'）';
   if(topFilterMode==='month')return '當月（'+monthStart().slice(0,7)+'）';
+  if(topFilterMode==='work')return '工作月（'+(workFrom||'起')+' ~ '+(workTo||'迄')+'）';
   return '期間 '+(rangeFrom||'起')+' ~ '+(rangeTo||'迄');
 }
 function topAgg(){
@@ -542,7 +639,11 @@ function topAgg(){
   return m;
 }
 function isTopMember(name,agg){const a=agg[name];return a&&a.cnt>=TOP_CNT&&a.amt>=TOP_FYC;}
-function setTopFilter(m){topFilterMode=m;if(m==='range'&&!rangeFrom){rangeFrom=monthStart();rangeTo=todayStr();}renderTop();}
+function setTopFilter(m){topFilterMode=m;
+  if(m==='range'&&!rangeFrom){rangeFrom=monthStart();rangeTo=todayStr();}
+  if(m==='work'&&!workFrom){const d=new Date();const y=d.getFullYear(),mo=d.getMonth();
+    workFrom=new Date(y,mo-1,25).toISOString().slice(0,10);workTo=new Date(y,mo,24).toISOString().slice(0,10);save();}
+  renderTop();}
 function renderTop(){
   const box=document.getElementById('viewTop');
   const agg=topAgg();
@@ -553,9 +654,13 @@ function renderTop(){
   h+='<div class="filter">'+
      `<button class="fbtn ${topFilterMode==='today'?'active':''}" onclick="setTopFilter('today')">當日</button>`+
      `<button class="fbtn ${topFilterMode==='month'?'active':''}" onclick="setTopFilter('month')">當月</button>`+
+     `<button class="fbtn ${topFilterMode==='work'?'active':''}" onclick="setTopFilter('work')">工作月</button>`+
      `<button class="fbtn ${topFilterMode==='range'?'active':''}" onclick="setTopFilter('range')">自訂期間</button></div>`;
   if(topFilterMode==='range'){
     h+=`<div class="daterange"><input type="date" value="${rangeFrom}" onchange="rangeFrom=this.value;renderTop()"><span>~</span><input type="date" value="${rangeTo}" onchange="rangeTo=this.value;renderTop()"></div>`;
+  }
+  if(topFilterMode==='work'){
+    h+=`<div class="daterange"><span style="color:#C9A84C;font-size:12px">工作月起訖</span><input type="date" value="${workFrom}" onchange="workFrom=this.value;save();renderTop()"><span>~</span><input type="date" value="${workTo}" onchange="workTo=this.value;save();renderTop()"></div>`;
   }
   h+='<div class="rankhint">達標條件：<b>件數 ≥ '+TOP_CNT+' 且 FYC ≥ '+TOP_FYC.toLocaleString()+' 元</b>（未出勤者不列入）。　範圍：<b>'+topLabel()+'</b><br>共 <b>'+items.length+'</b> 位達標。</div>';
   if(!items.length)h+='<div class="emptyhint">此範圍尚無人達標。</div>';
@@ -612,6 +717,8 @@ function mxMonthDates(ym){const n=mxDays(ym);const a=[];for(let d=1;d<=n;d++)a.p
 function mxWeek(ds){const d=new Date(ds+'T00:00:00');return ['日','一','二','三','四','五','六'][d.getDay()];}
 function mxMD(ds){const[y,m,d]=ds.split('-');return Number(m)+'/'+Number(d);}
 function mxGetCell(name,date){return records.find(r=>r.name===name&&r.date===date);}
+const ZCOLORS={'勇伯區':'#3a5a92','美淑區':'#7a4a8a','春美區':'#2e7d5b','淑韻區':'#8a6a3a','振毅區':'#9a4a4a','麗美區':'#4a7a8a','凱雯區':'#6a5a9a','文進區':'#8a7a3a','宜君區':'#3a7a6a'};
+function mxZoneColor(name){const p=findP(name);return p?(ZCOLORS[p.zone]||'#1B2A4A'):'#1B2A4A';}
 function mxSetCell(name,date,amt,cnt){
   let r=mxGetCell(name,date);
   if(amt===0&&cnt===0){ if(r)records=records.filter(x=>!(x.name===name&&x.date===date)); }
@@ -650,7 +757,7 @@ function renderMatrix(){
   const colSum={},colCnt={};showDates.forEach(d=>{colSum[d]=0;colCnt[d]=0;});
   pp.forEach(name=>{
     let mA=0,mC=0;dates.forEach(d=>{const r=mxGetCell(name,d);if(r){mA+=r.amt;mC+=r.cnt;}});
-    h+=`<tr><th class="namec">${name}</th>`;
+    h+=`<tr><th class="namec" style="background:${mxZoneColor(name)}">${name}</th>`;
     showDates.forEach(d=>{const r=mxGetCell(name,d);
       if(r){colSum[d]+=r.amt;colCnt[d]+=r.cnt;
         h+=`<td class="cell has" onclick="mxOpen('${name}','${d}')"><span class="fyc">${(r.amt||0).toLocaleString()}</span><span class="cnt">${r.cnt}件</span></td>`;
