@@ -95,6 +95,34 @@ textarea{width:100%;height:150px;padding:10px;border-radius:8px;border:1px solid
 .perfrow .a{flex:0 0 92px;text-align:right;color:#C9A84C;font-weight:700;}
 .perfrow .x{flex:0 0 30px;text-align:center;color:#e89;cursor:pointer;}
 .emptyhint{padding:24px;text-align:center;color:#7d8fad;font-size:14px;line-height:1.8;}
+.mxtools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;}
+.mxtools .seg{display:inline-flex;border:2px solid #C9A84C;border-radius:9px;overflow:hidden;}
+.mxtools .seg button{border:none;background:#0f1626;color:#cfe;font-family:inherit;font-weight:700;font-size:13px;padding:8px 12px;cursor:pointer;}
+.mxtools .seg button.on{background:linear-gradient(90deg,#C9A84C,#A07830);color:#1B2A4A;}
+.mxtools input,.mxtools select{padding:7px 9px;border:1px solid #2E4A7A;border-radius:8px;background:#0f1626;color:#fff;font-size:13px;font-family:inherit;}
+.mxpager{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.mxpager button{width:34px;height:34px;border-radius:8px;border:1.5px solid #C9A84C;background:#0f1626;color:#C9A84C;font-weight:900;font-size:16px;cursor:pointer;}
+.mxpager button:disabled{opacity:.3;}
+.mxpager .pg{font-size:13px;font-weight:800;color:#C9A84C;min-width:70px;text-align:center;}
+.mxwrap{overflow-x:auto;border-radius:10px;border:1px solid #2E4A7A;}
+.mxtable{border-collapse:collapse;width:100%;min-width:max-content;}
+.mxtable th,.mxtable td{border:1px solid #25395f;text-align:center;font-size:13px;white-space:nowrap;}
+.mxtable thead th{background:#16233f;color:#fff;font-weight:800;padding:8px 6px;position:sticky;top:0;z-index:2;}
+.mxtable thead th.corner{left:0;z-index:5;position:sticky;min-width:88px;background:#16233f;}
+.mxtable thead th .wd{font-size:10px;color:#C9A84C;font-weight:700;display:block;}
+.mxtable thead th.sum{background:#A07830;color:#fff;min-width:72px;}
+.mxtable tbody th.namec{background:#1B2A4A;color:#FAF6EE;font-weight:800;padding:7px 9px;text-align:left;position:sticky;left:0;z-index:1;min-width:88px;}
+.mxtable td.cell{padding:0;cursor:pointer;min-width:64px;height:44px;position:relative;background:#0f1626;}
+.mxtable td.cell .fyc{font-weight:800;color:#FFB37A;font-size:13px;}
+.mxtable td.cell .cnt{position:absolute;top:1px;right:3px;font-size:9px;color:#C9A84C;font-weight:700;}
+.mxtable td.cell.empty{color:#33415f;}
+.mxtable td.cell.has{background:#172742;}
+.mxtable td.sumc{background:#16233f;font-weight:900;color:#C9A84C;font-size:13px;min-width:72px;}
+.mxtable td.sumc .c{display:block;font-size:9px;color:#9fb0cc;font-weight:700;}
+.mxtable tfoot th,.mxtable tfoot td{background:#16233f;color:#fff;font-weight:900;padding:8px 6px;}
+.mxtable tfoot th.namec{text-align:left;position:sticky;left:0;}
+.mxtable tfoot td .c{display:block;font-size:9px;color:#C9A84C;font-weight:700;}
+.mxtable tfoot td.grand{background:#A07830;}
 .qrow{display:flex;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid #1d2c49;font-size:15px;}
 .qrow .qz{flex:1.1;color:#FAF6EE;font-weight:700;}
 .qrow .qq{flex:1.2;text-align:right;color:#C9A84C;font-weight:700;}
@@ -132,6 +160,7 @@ try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMC
     <div class="tabs">
       <button class="tab active" data-v="org" onclick="switchTab('org')">組織表</button>
       <button class="tab" data-v="perf" onclick="switchTab('perf')">業績</button>
+      <button class="tab" data-v="matrix" onclick="switchTab('matrix')">每日表</button>
       <button class="tab" data-v="rPerson" onclick="switchTab('rPerson')">個人</button>
       <button class="tab" data-v="rGroup" onclick="switchTab('rGroup')">組</button>
       <button class="tab" data-v="rRep" onclick="switchTab('rRep')">業代</button>
@@ -151,6 +180,7 @@ try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMC
 
   <div id="viewOrg"></div>
   <div id="viewPerf" class="hidden"></div>
+  <div id="viewMatrix" class="hidden"></div>
   <div id="viewRank" class="hidden"></div>
   <div id="viewQuota" class="hidden"></div>
   <div id="viewTop" class="hidden"></div>
@@ -168,6 +198,14 @@ try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMC
 </div></div>
 
 <!-- 新增業績 -->
+<div class="modal" id="mxModal"><div class="mbox">
+  <h3>填寫業績</h3>
+  <p class="note" id="mxWho" style="color:#C9A84C;margin-bottom:12px"></p>
+  <div class="fld"><label>FYC 金額</label><input id="mxFyc" type="number" inputmode="numeric" placeholder="例：50000"></div>
+  <div class="fld"><label>件數</label><input id="mxCnt" type="number" inputmode="decimal" placeholder="例：1"></div>
+  <div class="mbtns"><button class="b-cancel" onclick="mxClose()">取消</button><button class="b-ok" onclick="mxSave()">儲存</button></div>
+</div></div>
+
 <div class="modal" id="perfModal"><div class="mbox">
   <h3>新增業績</h3>
   <div class="fld"><label>日期</label><input id="pDate" type="date"></div>
@@ -232,11 +270,13 @@ function switchTab(v){
   document.getElementById('orgTop').classList.toggle('hidden',v!=='org');
   document.getElementById('viewOrg').classList.toggle('hidden',v!=='org');
   document.getElementById('viewPerf').classList.toggle('hidden',v!=='perf');
+  document.getElementById('viewMatrix').classList.toggle('hidden',v!=='matrix');
   document.getElementById('viewRank').classList.toggle('hidden',!(v.startsWith('r')));
   document.getElementById('viewQuota').classList.toggle('hidden',v!=='quota');
   document.getElementById('viewTop').classList.toggle('hidden',v!=='top');
   if(v==='org')renderOrg();
   else if(v==='perf')renderPerf();
+  else if(v==='matrix')renderMatrix();
   else if(v==='quota')renderQuota();
   else if(v==='top')renderTop();
   else renderRank(v);
@@ -562,6 +602,88 @@ function makeTopImage(){
   ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='32px '+SERIF;ctx.fillText('齊心 · 衝刺 · 共榮',W/2,H-58);
   const url=cv.toDataURL('image/png');
   document.getElementById('topResult').innerHTML='<img src="'+url+'" alt="TOP會員圖"><div class="tip">↑ 長按這張圖 → 加入照片 / 儲存影像</div>';
+}
+
+/* ---- 每日業績矩陣（共用 records）---- */
+let mxMonth='', mxMode='people', mxPage=0, mxPer=10, mxEdit=null;
+function mxPad(n){return String(n).padStart(2,'0');}
+function mxDays(ym){const [y,m]=ym.split('-').map(Number);return new Date(y,m,0).getDate();}
+function mxMonthDates(ym){const n=mxDays(ym);const a=[];for(let d=1;d<=n;d++)a.push(ym+'-'+mxPad(d));return a;}
+function mxWeek(ds){const d=new Date(ds+'T00:00:00');return ['日','一','二','三','四','五','六'][d.getDay()];}
+function mxMD(ds){const[y,m,d]=ds.split('-');return Number(m)+'/'+Number(d);}
+function mxGetCell(name,date){return records.find(r=>r.name===name&&r.date===date);}
+function mxSetCell(name,date,amt,cnt){
+  let r=mxGetCell(name,date);
+  if(amt===0&&cnt===0){ if(r)records=records.filter(x=>!(x.name===name&&x.date===date)); }
+  else if(r){r.amt=amt;r.cnt=cnt;} else records.push({date,name,cnt,amt});
+  save();
+}
+function mxTotalPages(){
+  const dates=mxMonthDates(mxMonth);
+  if(mxMode==='people')return Math.max(1,Math.ceil(people.length/mxPer));
+  return Math.max(1,Math.ceil(dates.length/mxPer));
+}
+function renderMatrix(){
+  const box=document.getElementById('viewMatrix');
+  if(!mxMonth)mxMonth=todayStr().slice(0,7);
+  let h='<div class="panel"><h1>每日業績表</h1>';
+  // 工具列
+  h+='<div class="mxtools">'+
+     `<div class="seg"><button class="${mxMode==='people'?'on':''}" onclick="mxSetMode('people')">人名分頁</button><button class="${mxMode==='date'?'on':''}" onclick="mxSetMode('date')">日期分頁</button></div>`+
+     `<label style="font-size:12px;color:#9fb0cc">月份</label><input type="month" value="${mxMonth}" onchange="mxMonth=this.value;mxPage=0;renderMatrix()">`+
+     `<label style="font-size:12px;color:#9fb0cc">每頁</label><select onchange="mxPer=+this.value;mxPage=0;renderMatrix()">`+
+       [5,10,15,20].map(n=>`<option value="${n}" ${n===mxPer?'selected':''}>${n}</option>`).join('')+`</select>`+
+     `</div>`;
+  // 分頁器
+  const tp=mxTotalPages();
+  h+=`<div class="mxpager"><button onclick="mxGo(-1)" ${mxPage<=0?'disabled':''}>‹</button>`+
+     `<span class="pg">${mxPage+1} / ${tp}</span><button onclick="mxGo(1)" ${mxPage>=tp-1?'disabled':''}>›</button>`+
+     `<span style="font-size:12px;color:#7d8fad;margin-left:8px">點格子可填／改 FYC 與件數</span></div>`;
+  // 表格
+  const dates=mxMonthDates(mxMonth);
+  let pp=people.map(p=>p.name), showDates=dates;
+  if(mxMode==='people'){const s=mxPage*mxPer;pp=pp.slice(s,s+mxPer);}
+  else{const s=mxPage*mxPer;showDates=dates.slice(s,s+mxPer);}
+  h+='<div class="mxwrap"><table class="mxtable"><thead><tr><th class="corner">姓名＼日期</th>';
+  showDates.forEach(d=>{h+=`<th>${mxMD(d)}<span class="wd">週${mxWeek(d)}</span></th>`;});
+  h+='<th class="sum">本月FYC<span class="wd">件數</span></th></tr></thead><tbody>';
+  const colSum={},colCnt={};showDates.forEach(d=>{colSum[d]=0;colCnt[d]=0;});
+  pp.forEach(name=>{
+    let mA=0,mC=0;dates.forEach(d=>{const r=mxGetCell(name,d);if(r){mA+=r.amt;mC+=r.cnt;}});
+    h+=`<tr><th class="namec">${name}</th>`;
+    showDates.forEach(d=>{const r=mxGetCell(name,d);
+      if(r){colSum[d]+=r.amt;colCnt[d]+=r.cnt;
+        h+=`<td class="cell has" onclick="mxOpen('${name}','${d}')"><span class="fyc">${(r.amt||0).toLocaleString()}</span><span class="cnt">${r.cnt}件</span></td>`;
+      }else h+=`<td class="cell empty" onclick="mxOpen('${name}','${d}')">·</td>`;
+    });
+    h+=`<td class="sumc">${mA.toLocaleString()}<span class="c">${mC}件</span></td></tr>`;
+  });
+  h+='</tbody><tfoot><tr><th class="namec">'+(mxMode==='date'?'全員每日合計':'本頁每日合計')+'</th>';
+  const footPeople=mxMode==='date'?people.map(p=>p.name):pp;
+  const fS={},fC={};showDates.forEach(d=>{fS[d]=0;fC[d]=0;});
+  footPeople.forEach(name=>{showDates.forEach(d=>{const r=mxGetCell(name,d);if(r){fS[d]+=r.amt;fC[d]+=r.cnt;}});});
+  let gA=0,gC=0;records.forEach(r=>{if(r.date>=mxMonth+'-01'&&r.date<=mxMonth+'-31'){gA+=r.amt;gC+=r.cnt;}});
+  showDates.forEach(d=>{h+=`<td>${fS[d].toLocaleString()}<span class="c">${fC[d]}件</span></td>`;});
+  h+=`<td class="grand">${gA.toLocaleString()}<span class="c">${gC}件</span></td></tr></tfoot></table></div>`;
+  h+='</div>';
+  box.innerHTML=h;
+}
+function mxSetMode(m){mxMode=m;mxPage=0;renderMatrix();}
+function mxGo(d){const tp=mxTotalPages();mxPage=Math.min(Math.max(0,mxPage+d),tp-1);renderMatrix();}
+function mxOpen(name,date){
+  mxEdit={name,date};const r=mxGetCell(name,date);
+  document.getElementById('mxWho').textContent=name+'　'+date+'（週'+mxWeek(date)+'）';
+  document.getElementById('mxFyc').value=r?r.amt:'';
+  document.getElementById('mxCnt').value=r?r.cnt:'';
+  document.getElementById('mxModal').classList.add('show');
+  setTimeout(()=>document.getElementById('mxFyc').focus(),50);
+}
+function mxClose(){document.getElementById('mxModal').classList.remove('show');mxEdit=null;}
+function mxSave(){
+  if(!mxEdit)return;
+  const amt=parseFloat(document.getElementById('mxFyc').value)||0;
+  const cnt=parseFloat(document.getElementById('mxCnt').value)||0;
+  mxSetCell(mxEdit.name,mxEdit.date,amt,cnt);mxClose();renderMatrix();
 }
 
 /* ---- 編輯人員 ---- */
