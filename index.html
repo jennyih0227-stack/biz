@@ -28,14 +28,33 @@ h1{font-family:var(--serif);font-size:20px;color:#C9A84C;letter-spacing:1px;marg
 .zone{margin-bottom:14px;border:1px solid #243a5e;border-radius:12px;overflow:hidden;scroll-margin-top:14px;}
 .zhead{background:linear-gradient(90deg,#C9A84C,#A07830);color:#1B2A4A;padding:10px 14px;font-weight:900;font-size:17px;display:flex;justify-content:space-between;align-items:center;}
 .zhead .cnt{font-size:13px;font-weight:700;}
-.prow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid #1d2c49;}
+.prow{display:flex;align-items:center;gap:7px;padding:10px 10px;border-top:1px solid #1d2c49;}
 .prow:nth-child(even){background:rgba(250,246,238,.03);}
-.prow .grp{flex:0 0 84px;font-size:13px;color:#C9A84C;font-weight:700;}
-.prow .nm{flex:1;font-size:16px;color:#FAF6EE;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.prow .grp{flex:0 0 70px;font-size:12px;color:#C9A84C;font-weight:700;background:rgba(201,168,76,.1);padding:4px 6px;border-radius:6px;text-align:center;}
+.prow .nm{flex:1;font-size:20px;color:#FFFFFF;font-weight:800;min-width:46px;letter-spacing:1px;}
+.titlesel{flex:0 0 auto;padding:6px 4px;border-radius:7px;border:1px solid #C9A84C;background:#0f1626;color:#E0C868;font-size:13px;font-family:inherit;font-weight:700;}
 .badge{font-size:11px;padding:2px 7px;border-radius:8px;font-weight:700;}
 .badge.title{background:rgba(201,168,76,.22);color:#E0C868;border:1px solid rgba(201,168,76,.4);}
-.prow .act{display:flex;gap:6px;}
-.prow .act button{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;font-size:15px;}
+.badge.lead{background:rgba(201,168,76,.2);color:#C9A84C;}
+.badge.rep{background:rgba(99,160,255,.18);color:#7db0ff;}
+.prow2{padding:11px 12px;border-top:1px solid #1d2c49;}
+.prow2:nth-child(even){background:rgba(250,246,238,.03);}
+.prow2 .line1{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.prow2 .line1 .grp{flex:0 0 auto;font-size:13px;color:#C9A84C;font-weight:700;background:rgba(201,168,76,.1);padding:3px 8px;border-radius:6px;}
+.prow2 .line1 .nm{flex:1;font-size:19px;color:#FAF6EE;font-weight:700;}
+.prow2 .line2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.prow2 .line2 .act{margin-left:auto;display:flex;gap:6px;}
+.prow2 .line2 .act button{padding:7px 12px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-family:inherit;}
+.prow2.off{opacity:.5;}
+.prow2.off .nm{text-decoration:line-through;}
+.prow2 .chk{padding:6px 12px;border-radius:8px;border:2px solid #3a5a92;background:#0f1626;color:#9fb0cc;font-size:13px;font-weight:700;cursor:pointer;}
+.prow2 .chk.on{background:rgba(63,191,106,.18);border-color:#3FBF6A;color:#3FBF6A;}
+.prow .act{display:flex;gap:5px;}
+.chk{flex:0 0 auto;padding:6px 9px;border-radius:7px;border:2px solid #3a5a92;background:#0f1626;color:#9fb0cc;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.chk.on{background:rgba(63,191,106,.18);border-color:#3FBF6A;color:#3FBF6A;}
+.prow.off{opacity:.5;}
+.prow.off .nm{text-decoration:line-through;}
+.prow .act button{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;font-size:14px;}
 .b-edit{background:#243a5e;color:#cfe;}
 .b-del{background:#3a2230;color:#e89;border:1px solid #6a3550 !important;}
 /* 日期篩選 */
@@ -76,6 +95,18 @@ textarea{width:100%;height:150px;padding:10px;border-radius:8px;border:1px solid
 .perfrow .a{flex:0 0 92px;text-align:right;color:#C9A84C;font-weight:700;}
 .perfrow .x{flex:0 0 30px;text-align:center;color:#e89;cursor:pointer;}
 .emptyhint{padding:24px;text-align:center;color:#7d8fad;font-size:14px;line-height:1.8;}
+.qrow{display:flex;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid #1d2c49;font-size:15px;}
+.qrow .qz{flex:1.1;color:#FAF6EE;font-weight:700;}
+.qrow .qq{flex:1.2;text-align:right;color:#C9A84C;font-weight:700;}
+.qrow input.qq{padding:9px;border-radius:8px;border:1px solid #2E4A7A;background:#FFF6D8;color:#1B2A4A;font-size:15px;font-family:inherit;text-align:right;font-weight:700;min-width:0;}
+.qrow .qa{flex:1.2;text-align:right;color:#fff;font-weight:700;}
+.qrow .qd{flex:1.1;text-align:right;font-size:14px;font-weight:700;}
+.qrow .qd.pos{color:#3FBF6A;}.qrow .qd.neg{color:#E0995A;}
+.qrow.qhead{color:#9fb0cc;font-weight:700;font-size:13px;}
+.qrow.qhead span{font-weight:700;}
+.qrow.qdone{background:rgba(63,191,106,.1);}
+.qrow.qtotal{background:linear-gradient(90deg,rgba(201,168,76,.3),rgba(160,120,48,.3));border-radius:10px;margin-top:8px;font-weight:900;}
+.qrow.qtotal .qz,.qrow.qtotal .qq,.qrow.qtotal .qa,.qrow.qtotal .qd{color:#E0C868;}
 </style>
 </head>
 <body>
@@ -104,6 +135,8 @@ try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMC
       <button class="tab" data-v="rPerson" onclick="switchTab('rPerson')">個人</button>
       <button class="tab" data-v="rGroup" onclick="switchTab('rGroup')">組</button>
       <button class="tab" data-v="rRep" onclick="switchTab('rRep')">業代</button>
+      <button class="tab" data-v="quota" onclick="switchTab('quota')">責任額</button>
+      <button class="tab" data-v="top" onclick="switchTab('top')">TOP會員</button>
     </div>
     <div id="orgTop">
       <div class="stat" id="stat"></div>
@@ -119,6 +152,8 @@ try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMC
   <div id="viewOrg"></div>
   <div id="viewPerf" class="hidden"></div>
   <div id="viewRank" class="hidden"></div>
+  <div id="viewQuota" class="hidden"></div>
+  <div id="viewTop" class="hidden"></div>
 </div>
 
 <!-- 編輯人員 -->
@@ -155,7 +190,19 @@ try{if(sessionStorage.getItem('unlocked')==='1'){document.addEventListener('DOMC
 const ZONES=["勇伯區","美淑區","春美區","淑韻區","振毅區","麗美區","凱雯區","文進區","宜君區"];
 const SEED=[];  // 部署版：名單清空
 const LS='biz_data_v1';
-let people=[], records=[]; let editIdx=-1, curTab='org', impMode='org';
+let people=[], records=[], zoneQuota={}, zoneQuotaM={}; let editIdx=-1, curTab='org', impMode='org';
+// 各月各區責任額（單位：萬元）＋通訊處核定數
+const QUOTA_PRESET={
+ 7 :{hq:143, z:{勇伯區:29,美淑區:29,春美區:16,淑韻區:5,振毅區:5,麗美區:5,凱雯區:21,文進區:21,宜君區:12}},
+ 8 :{hq:147, z:{勇伯區:30,美淑區:30,春美區:17,淑韻區:5,振毅區:5,麗美區:5,凱雯區:21,文進區:21,宜君區:13}},
+ 9 :{hq:147, z:{勇伯區:30,美淑區:30,春美區:17,淑韻區:5,振毅區:5,麗美區:5,凱雯區:21,文進區:21,宜君區:13}},
+ 10:{hq:150, z:{勇伯區:31,美淑區:31,春美區:18,淑韻區:5,振毅區:5,麗美區:5,凱雯區:22,文進區:22,宜君區:13}},
+ 11:{hq:171, z:{勇伯區:35,美淑區:35,春美區:20,淑韻區:6,振毅區:6,麗美區:6,凱雯區:25,文進區:25,宜君區:15}},
+ 12:{hq:205, z:{勇伯區:42,美淑區:42,春美區:24,淑韻區:6,振毅區:6,麗美區:6,凱雯區:30,文進區:30,宜君區:18}},
+};
+// TOP會員門檻
+const TOP_CNT=4, TOP_FYC=20000;
+let qMonth=7; // 責任額分頁目前月份
 let filterMode='month'; // today|month|range
 let rangeFrom='', rangeTo='';
 let topN=5, lastRank={title:'',items:[]};
@@ -163,11 +210,17 @@ let topN=5, lastRank={title:'',items:[]};
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function monthStart(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01';}
 function load(){
-  try{const s=JSON.parse(localStorage.getItem(LS));if(s){people=s.people||[];records=s.records||[];}}catch(e){}
-  if(!people.length){people=SEED.map(([z,g,n])=>({zone:z,group:g,name:n,title:''}));}
+  try{const s=JSON.parse(localStorage.getItem(LS));if(s){people=s.people||[];records=s.records||[];zoneQuota=s.zoneQuota||{};zoneQuotaM=s.zoneQuotaM||{};}}catch(e){}
+  if(!people.length){people=SEED.map(([z,g,n])=>({zone:z,group:g,name:n,title:'',active:true}));}
+  // 向下相容：補 active
+  people.forEach(p=>{ if(p.active===undefined)p.active=true; });
+  // 預建各月責任額（萬元）－若該月尚無資料才填預設
+  [7,8,9,10,11,12].forEach(mk=>{
+    if(!zoneQuotaM[mk]){const pr=QUOTA_PRESET[mk];zoneQuotaM[mk]={hq:pr.hq,z:{...pr.z}};}
+  });
   save();
 }
-function save(){try{localStorage.setItem(LS,JSON.stringify({people,records}));}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({people,records,zoneQuota,zoneQuotaM}));}catch(e){}}
 function autoGroup(name){return name&&name.length>1?name.slice(1)+'組':(name?name+'組':'');}
 function isLeader(p){const key=p.group.endsWith('組')?p.group.slice(0,-1):p.group;return p.name.slice(1)===key||p.name===key;}
 function zoneOrder(){const zs=new Set(people.map(p=>p.zone));return[...ZONES.filter(z=>zs.has(z)),...[...zs].filter(z=>!ZONES.includes(z))];}
@@ -180,8 +233,12 @@ function switchTab(v){
   document.getElementById('viewOrg').classList.toggle('hidden',v!=='org');
   document.getElementById('viewPerf').classList.toggle('hidden',v!=='perf');
   document.getElementById('viewRank').classList.toggle('hidden',!(v.startsWith('r')));
+  document.getElementById('viewQuota').classList.toggle('hidden',v!=='quota');
+  document.getElementById('viewTop').classList.toggle('hidden',v!=='top');
   if(v==='org')renderOrg();
   else if(v==='perf')renderPerf();
+  else if(v==='quota')renderQuota();
+  else if(v==='top')renderTop();
   else renderRank(v);
 }
 
@@ -201,9 +258,24 @@ function renderOrg(){
     const ps=people.map((p,i)=>({...p,i})).filter(p=>p.zone===z);
     h+=`<div class="zone" id="zone-${z}"><div class="zhead"><span>${z}</span><span class="cnt">${ps.length} 人</span></div>`;
     ps.forEach(p=>{
-      const tb=p.title?`<span class="badge title">${p.title}</span>`:'';
-      h+=`<div class="prow"><span class="grp">${p.group}</span><span class="nm">${p.name}${tb}</span>
-        <span class="act"><button class="b-edit" onclick="openEdit(${p.i})">✎</button><button class="b-del" onclick="delP(${p.i})">🗑</button></span></div>`;
+      const lead=isLeader(p);
+      if(lead){
+        // 組長：列上職級下拉
+        const t=p.title||'';
+        const sel=`<select class="titlesel" onchange="setTitle(${p.i},this.value)">
+          <option value=""${t===''?' selected':''}>職級</option>
+          <option value="經理"${t==='經理'?' selected':''}>經理</option>
+          <option value="襄理"${t==='襄理'?' selected':''}>襄理</option>
+          <option value="主任"${t==='主任'?' selected':''}>主任</option></select>`;
+        h+=`<div class="prow"><span class="grp">${p.group}</span><span class="nm">${p.name}</span>
+          ${sel}<span class="act"><button class="b-edit" onclick="openEdit(${p.i})">✎</button><button class="b-del" onclick="delP(${p.i})">🗑</button></span></div>`;
+      }else{
+        // 業代：列上出勤勾選
+        const on=p.active!==false;
+        const chk=`<span class="chk ${on?'on':''}" onclick="toggleActive(${p.i})">${on?'✓出勤':'未出勤'}</span>`;
+        h+=`<div class="prow ${on?'':'off'}"><span class="grp">${p.group}</span><span class="nm">${p.name}</span>
+          ${chk}<span class="act"><button class="b-edit" onclick="openEdit(${p.i})">✎</button><button class="b-del" onclick="delP(${p.i})">🗑</button></span></div>`;
+      }
     });
     h+='</div>';
   });
@@ -268,8 +340,9 @@ function renderRank(kind){
   const agg=aggByName();
   let title,desc,items;
   if(kind==='rPerson'){
-    title='個人排名';desc='全通訊處每人依金額排。';
-    items=people.map(p=>({name:p.name,sub:p.zone+' · '+p.group,amt:agg[p.name]?.amt||0,cnt:agg[p.name]?.cnt||0}));
+    title='個人排名';desc='全通訊處每人依金額排（未出勤者不列入）。';
+    items=people.filter(p=>p.active!==false).map(p=>({name:p.name,sub:p.zone+' · '+p.group,amt:agg[p.name]?.amt||0,cnt:agg[p.name]?.cnt||0,
+      isTop:(agg[p.name]?.cnt||0)>=TOP_CNT&&(agg[p.name]?.amt||0)>=TOP_FYC}));
   }else if(kind==='rGroup'){
     title='組排名';desc='以組為單位＝組長＋組員合計。';
     const m={};
@@ -277,8 +350,8 @@ function renderRank(kind){
       m[k].amt+=agg[p.name]?.amt||0;m[k].cnt+=agg[p.name]?.cnt||0;m[k].ppl++;});
     items=Object.values(m).map(g=>({...g,sub:g.sub+' · '+g.ppl+' 人'}));
   }else{
-    title='業務代表排名';desc='僅計組員（非組長）。';
-    items=people.filter(p=>!isLeader(p)).map(p=>({name:p.name,sub:p.zone+' · '+p.group,amt:agg[p.name]?.amt||0,cnt:agg[p.name]?.cnt||0}));
+    title='業務代表排名';desc='僅計組員（非組長），未出勤者不列入。';
+    items=people.filter(p=>!isLeader(p)&&p.active!==false).map(p=>({name:p.name,sub:p.zone+' · '+p.group,amt:agg[p.name]?.amt||0,cnt:agg[p.name]?.cnt||0}));
   }
   items.sort((a,b)=>b.amt-a.amt);
   let h='<div class="panel"><h1>'+title+'</h1>';
@@ -306,7 +379,7 @@ function renderRank(kind){
   items.forEach((it,i)=>{
     const cls=it.amt>0?(i===0?'top1':i===1?'top2':i===2?'top3':''):'';
     h+=`<div class="rrow ${cls}"><div class="rk">${i+1}</div>
-      <div class="who"><div class="n">${it.name}</div><div class="s">${it.sub}</div></div>
+      <div class="who"><div class="n">${it.name}${it.isTop?' <span class="badge" style="background:rgba(201,168,76,.25);color:#E0C868;border:1px solid #C9A84C">TOP</span>':''}</div><div class="s">${it.sub}</div></div>
       <div class="val"><div class="a">${it.amt.toLocaleString()}</div><div class="c">${it.cnt} 件</div></div></div>`;
   });
   h+='</div>';
@@ -315,6 +388,181 @@ function renderRank(kind){
 }
 function setTopN(n){topN=n;renderRank(curTab);}
 function setFilter(m){filterMode=m;if(m==='range'&&!rangeFrom){rangeFrom=monthStart();rangeTo=todayStr();}renderRank(curTab);}
+
+/* ---- 責任額（月份制；責任額萬元、達成元，各顯各的）---- */
+function qMonthRange(mk){ // 該工作月對應的日期區間（依年度推算，用今年）
+  const y=new Date().getFullYear();
+  const mm=String(mk).padStart(2,'0');
+  const last=new Date(y,mk,0).getDate();
+  return [`${y}-${mm}-01`,`${y}-${mm}-${last}`];
+}
+function zoneAchieveByMonth(mk){ // 各區達成金額（元），依該月
+  const [a,b]=qMonthRange(mk);
+  const m={};
+  records.filter(r=>r.date>=a&&r.date<=b).forEach(r=>{
+    const p=findP(r.name); if(!p)return;
+    m[p.zone]=(m[p.zone]||0)+(r.amt||0);
+  });
+  return m;
+}
+function setQMonth(mk){qMonth=mk;renderQuota();}
+function setQuotaM(zone,val){if(!zoneQuotaM[qMonth])zoneQuotaM[qMonth]={hq:0,z:{}};zoneQuotaM[qMonth].z[zone]=parseFloat(val)||0;save();renderQuota();}
+function setHqM(val){if(!zoneQuotaM[qMonth])zoneQuotaM[qMonth]={hq:0,z:{}};zoneQuotaM[qMonth].hq=parseFloat(val)||0;save();renderQuota();}
+function wan(n){return (n/10000);} // 元→萬元
+function fmtWan(n){const w=n/10000;return (Math.round(w*10)/10).toLocaleString();} // 元→萬元字串(1位小數)
+function renderQuota(){
+  const box=document.getElementById('viewQuota');
+  const QM=zoneQuotaM[qMonth]||{hq:0,z:{}};
+  const ach=zoneAchieveByMonth(qMonth); // 元
+  const zones=zoneOrder();
+  let h='<div class="panel"><h1>各區責任額（萬元）</h1>';
+  // 月份切換
+  h+='<div class="months">'+[7,8,9,10,11,12].map(mk=>`<button class="mbtn ${mk===qMonth?'active':''}" onclick="setQMonth(${mk})">${mk}月</button>`).join('')+'</div>';
+  h+='<div class="rankhint">責任額單位<b>萬元</b>（淡黃格可改）；達成為該月業績加總（單位<b>元</b>），自動換算對比。</div>';
+  h+='<div class="qrow qhead"><span class="qz">區</span><span class="qq">責任額<br>(萬)</span><span class="qa">達成<br>(元)</span><span class="qd">達成<br>(萬)</span></div>';
+  let tA=0;
+  zones.forEach(z=>{
+    const q=QM.z[z]||0;            // 萬元
+    const a=ach[z]||0;             // 元
+    const aWan=a/10000;            // 達成換算萬元
+    tA+=a;
+    const done=q>0&&aWan>=q;
+    h+=`<div class="qrow ${done?'qdone':''}"><span class="qz">${z}</span>`+
+       `<input class="qq qinput" type="number" inputmode="decimal" value="${q||''}" placeholder="0" onchange="setQuotaM('${z}',this.value)">`+
+       `<span class="qa">${a.toLocaleString()}</span>`+
+       `<span class="qd ${done?'pos':'neg'}">${fmtWan(a)}${done?' ✔':''}</span></div>`;
+  });
+  const tQ=zones.reduce((s,z)=>s+(QM.z[z]||0),0); // 萬
+  const hq=QM.hq||0; // 通訊處核定(萬)
+  h+=`<div class="qrow qtotal"><span class="qz">通訊處(核定)</span>`+
+     `<input class="qq qinput" type="number" inputmode="decimal" value="${hq||''}" placeholder="0" onchange="setHqM(this.value)" style="background:#FFF6D8">`+
+     `<span class="qa">${tA.toLocaleString()}</span>`+
+     `<span class="qd">${fmtWan(tA)}萬</span></div>`;
+  h+=`<p class="note">各區責任額加總 ${tQ.toLocaleString()} 萬；通訊處核定 ${hq.toLocaleString()} 萬（核定可與加總略有差異）。</p>`;
+  h+='<div class="bar" style="margin-top:12px"><button class="b-ok" style="flex:1;padding:13px;border-radius:10px;border:none;font-weight:700;cursor:pointer" onclick="makeQuotaImage()">⬇ 產生責任額圖</button></div><div id="quotaResult" class="result"></div>';
+  h+='</div>';
+  box.innerHTML=h;
+}
+function makeQuotaImage(){
+  const QM=zoneQuotaM[qMonth]||{hq:0,z:{}};
+  const ach=zoneAchieveByMonth(qMonth);
+  const zones=zoneOrder();
+  const rows=zones.map(z=>({z,q:QM.z[z]||0,a:ach[z]||0}));
+  const W=1080,rowH=120,headH=460,footH=110;
+  const H=Math.max(1200,headH+rows.length*rowH+150+footH);
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  let g=ctx.createLinearGradient(0,0,W*0.4,H);g.addColorStop(0,'#1B2A4A');g.addColorStop(.55,'#2E4A7A');g.addColorStop(1,'#1B2A4A');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(201,168,76,.45)';ctx.lineWidth=2;rr2(ctx,40,40,W-80,H-80,18);ctx.stroke();
+  ctx.textAlign='center';ctx.fillStyle='#E8E0D0';ctx.font='34px '+SANS;ctx.fillText('躍勇業發組',W/2,150);
+  const MN=['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+  ctx.fillStyle='#fff';ctx.font='900 70px '+SERIF;ctx.fillText('第'+MN[qMonth]+'工作月 責任額',W/2,242);
+  ctx.fillStyle='#C9A84C';ctx.font='500 30px '+SANS;ctx.fillText(qMonth+'月 各區達成（單位：萬元）',W/2,305);
+  ctx.strokeStyle='#C9A84C';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/2-75,348);ctx.lineTo(W/2+75,348);ctx.stroke();
+  const left=70,right=W-70,tableW=right-left;
+  const cz=left+tableW*0.16,cq=left+tableW*0.46,ca=left+tableW*0.74,cd=left+tableW*0.92;
+  ctx.font='28px '+SANS;ctx.fillStyle='#9fb6d8';
+  ctx.fillText('區',cz,430);ctx.fillText('責任額(萬)',cq,430);ctx.fillText('達成(萬)',ca,430);ctx.fillText('',cd,430);
+  let yy=headH,tQ=0,tA=0;
+  rows.forEach(r=>{const aw=r.a/10000;tQ+=r.q;tA+=r.a;const done=r.q>0&&aw>=r.q;
+    ctx.fillStyle=done?'rgba(63,191,106,.14)':'rgba(250,246,238,.06)';rr2(ctx,left,yy,tableW,rowH-14,12);ctx.fill();
+    ctx.fillStyle=done?'#3FBF6A':'#C9A84C';rr2(ctx,left,yy,8,rowH-14,4);ctx.fill();
+    const midY=yy+(rowH-14)/2;ctx.textBaseline='middle';
+    ctx.textAlign='left';ctx.fillStyle='#FAF6EE';ctx.font='700 44px '+SANS;ctx.fillText(r.z,left+40,midY);
+    ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='900 46px '+SERIF;ctx.fillText(r.q.toLocaleString(),cq,midY);
+    ctx.fillStyle=done?'#3FBF6A':'#fff';ctx.font='900 44px '+SERIF;ctx.fillText((Math.round(aw*10)/10).toLocaleString()+(done?' ✔':''),ca,midY);
+    ctx.textBaseline='alphabetic';yy+=rowH;});
+  const hq=QM.hq||0;let tg=ctx.createLinearGradient(left,0,right,0);tg.addColorStop(0,'#C9A84C');tg.addColorStop(1,'#A07830');
+  ctx.fillStyle=tg;rr2(ctx,left,yy,tableW,100,12);ctx.fill();const mY=yy+50;ctx.textBaseline='middle';ctx.fillStyle='#1B2A4A';
+  ctx.textAlign='left';ctx.font='900 42px '+SANS;ctx.fillText('通訊處',left+40,mY);
+  ctx.textAlign='center';ctx.font='900 44px '+SERIF;ctx.fillText(hq.toLocaleString(),cq,mY);
+  ctx.fillText((Math.round(tA/10000*10)/10).toLocaleString(),ca,mY);ctx.textBaseline='alphabetic';
+  ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='32px '+SERIF;ctx.fillText('齊心 · 衝刺 · 共榮',W/2,H-56);
+  const url=cv.toDataURL('image/png');
+  document.getElementById('quotaResult').innerHTML='<img src="'+url+'" alt="責任額圖"><div class="tip">↑ 長按這張圖 → 加入照片 / 儲存影像</div>';
+}
+
+/* ---- TOP 會員（件數≥4 且 FYC≥20000）---- */
+let topFilterMode='month';
+function topInRange(d){
+  if(topFilterMode==='today')return d===todayStr();
+  if(topFilterMode==='month')return d>=monthStart()&&d<=todayStr().slice(0,8)+'31';
+  if(topFilterMode==='range')return (!rangeFrom||d>=rangeFrom)&&(!rangeTo||d<=rangeTo);
+  return true;
+}
+function topLabel(){
+  if(topFilterMode==='today')return '當日（'+todayStr()+'）';
+  if(topFilterMode==='month')return '當月（'+monthStart().slice(0,7)+'）';
+  return '期間 '+(rangeFrom||'起')+' ~ '+(rangeTo||'迄');
+}
+function topAgg(){
+  const m={};
+  records.filter(r=>topInRange(r.date)).forEach(r=>{
+    if(!m[r.name])m[r.name]={amt:0,cnt:0};m[r.name].amt+=(r.amt||0);m[r.name].cnt+=(r.cnt||0);
+  });
+  return m;
+}
+function isTopMember(name,agg){const a=agg[name];return a&&a.cnt>=TOP_CNT&&a.amt>=TOP_FYC;}
+function setTopFilter(m){topFilterMode=m;if(m==='range'&&!rangeFrom){rangeFrom=monthStart();rangeTo=todayStr();}renderTop();}
+function renderTop(){
+  const box=document.getElementById('viewTop');
+  const agg=topAgg();
+  let items=people.filter(p=>p.active!==false&&isTopMember(p.name,agg))
+    .map(p=>({name:p.name,sub:p.zone+' · '+p.group,amt:agg[p.name].amt,cnt:agg[p.name].cnt}));
+  items.sort((a,b)=>b.amt-a.amt);
+  let h='<div class="panel"><h1>TOP 會員</h1>';
+  h+='<div class="filter">'+
+     `<button class="fbtn ${topFilterMode==='today'?'active':''}" onclick="setTopFilter('today')">當日</button>`+
+     `<button class="fbtn ${topFilterMode==='month'?'active':''}" onclick="setTopFilter('month')">當月</button>`+
+     `<button class="fbtn ${topFilterMode==='range'?'active':''}" onclick="setTopFilter('range')">自訂期間</button></div>`;
+  if(topFilterMode==='range'){
+    h+=`<div class="daterange"><input type="date" value="${rangeFrom}" onchange="rangeFrom=this.value;renderTop()"><span>~</span><input type="date" value="${rangeTo}" onchange="rangeTo=this.value;renderTop()"></div>`;
+  }
+  h+='<div class="rankhint">達標條件：<b>件數 ≥ '+TOP_CNT+' 且 FYC ≥ '+TOP_FYC.toLocaleString()+' 元</b>（未出勤者不列入）。　範圍：<b>'+topLabel()+'</b><br>共 <b>'+items.length+'</b> 位達標。</div>';
+  if(!items.length)h+='<div class="emptyhint">此範圍尚無人達標。</div>';
+  items.forEach((it,i)=>{
+    h+=`<div class="rrow ${i<3?('top'+(i+1)):''}"><div class="rk">${i+1}</div>
+      <div class="who"><div class="n">${it.name} <span class="badge" style="background:rgba(201,168,76,.25);color:#E0C868;border:1px solid #C9A84C">TOP</span></div><div class="s">${it.sub}</div></div>
+      <div class="val"><div class="a">${it.amt.toLocaleString()}</div><div class="c">${it.cnt} 件</div></div></div>`;
+  });
+  h+='<div class="bar" style="margin-top:12px"><button class="b-ok" style="flex:1;padding:13px;border-radius:10px;border:none;font-weight:700;cursor:pointer" onclick="makeTopImage()">⬇ 產生 TOP 會員圖</button></div><div id="topResult" class="result"></div>';
+  h+='</div>';
+  box.innerHTML=h;
+  lastTop=items;
+}
+let lastTop=[];
+function makeTopImage(){
+  const items=lastTop;
+  if(!items.length){alert('此範圍尚無人達標');return;}
+  const W=1080,rowH=132,headH=480,footH=110;
+  const H=Math.max(1200,headH+items.length*rowH+footH+40);
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  let g=ctx.createLinearGradient(0,0,W*0.4,H);g.addColorStop(0,'#1B2A4A');g.addColorStop(.55,'#2E4A7A');g.addColorStop(1,'#1B2A4A');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(201,168,76,.45)';ctx.lineWidth=2;rr2(ctx,40,40,W-80,H-80,18);ctx.stroke();
+  ctx.textAlign='center';ctx.fillStyle='#E8E0D0';ctx.font='34px '+SANS;ctx.fillText('躍勇業發組',W/2,150);
+  ctx.fillStyle='#fff';ctx.font='900 80px '+SERIF;ctx.fillText('TOP 會員',W/2,255);
+  ctx.fillStyle='#C9A84C';ctx.font='500 30px '+SANS;ctx.fillText('件數≥'+TOP_CNT+'　FYC≥'+TOP_FYC.toLocaleString()+'　'+topLabel(),W/2,318);
+  ctx.strokeStyle='#C9A84C';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/2-75,360);ctx.lineTo(W/2+75,360);ctx.stroke();
+  const left=80,right=W-80,tableW=right-left;
+  const colAmt=left+tableW*0.72,colCnt=left+tableW*0.92;
+  ctx.font='28px '+SANS;ctx.fillStyle='#9fb6d8';
+  ctx.textAlign='left';ctx.fillText('名次 / 姓名',left+120,450);
+  ctx.textAlign='center';ctx.fillText('FYC',colAmt,450);ctx.fillText('件數',colCnt,450);
+  const medals=['🥇','🥈','🥉'];let yy=headH;
+  items.forEach((it,i)=>{const top3=i<3;
+    ctx.fillStyle=top3?'rgba(201,168,76,.16)':'rgba(250,246,238,.06)';rr2(ctx,left,yy,tableW,rowH-16,14);ctx.fill();
+    ctx.fillStyle=i===0?'#FFD24A':i===1?'#D8D8D8':i===2?'#E0995A':'#C9A84C';rr2(ctx,left,yy,9,rowH-16,5);ctx.fill();
+    const midY=yy+(rowH-16)/2;ctx.textBaseline='middle';ctx.textAlign='center';
+    if(top3){ctx.font='52px '+SANS;ctx.fillText(medals[i],left+58,midY);}
+    else{ctx.fillStyle='#9fb0cc';ctx.font='900 44px '+SERIF;ctx.fillText(String(i+1),left+58,midY);}
+    ctx.textAlign='left';ctx.fillStyle='#FAF6EE';ctx.font='700 48px '+SANS;ctx.fillText(it.name,left+120,midY-14);
+    ctx.fillStyle='#9fb0cc';ctx.font='26px '+SANS;ctx.fillText(it.sub,left+120,midY+30);
+    ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='900 46px '+SERIF;ctx.fillText(it.amt.toLocaleString(),colAmt,midY);
+    ctx.fillStyle='#9fc4ff';ctx.font='700 40px '+SERIF;ctx.fillText(String(it.cnt),colCnt,midY);
+    ctx.textBaseline='alphabetic';yy+=rowH;});
+  ctx.textAlign='center';ctx.fillStyle='#C9A84C';ctx.font='32px '+SERIF;ctx.fillText('齊心 · 衝刺 · 共榮',W/2,H-58);
+  const url=cv.toDataURL('image/png');
+  document.getElementById('topResult').innerHTML='<img src="'+url+'" alt="TOP會員圖"><div class="tip">↑ 長按這張圖 → 加入照片 / 儲存影像</div>';
+}
 
 /* ---- 編輯人員 ---- */
 function fillZoneSelect(sel){const s=document.getElementById('fZone');s.innerHTML='';
@@ -330,6 +578,8 @@ function saveEdit(){const z=document.getElementById('fZone').value;const name=do
   const rec={zone:z,group:g,name:name,title:title};
   if(editIdx<0)people.push(rec);else people[editIdx]=rec;save();renderOrg();closeEdit();}
 function delP(i){if(confirm('刪除「'+people[i].name+'」？')){people.splice(i,1);save();renderOrg();}}
+function toggleActive(i){people[i].active=!(people[i].active!==false);save();renderOrg();}
+function setTitle(i,val){people[i].title=val;save();renderOrg();}
 
 /* ---- 匯入/匯出 ---- */
 function openImport(mode){impMode=mode;
@@ -348,10 +598,10 @@ function doImport(){
   const t=document.getElementById('impText').value.trim();if(!t){alert('請貼上內容');return;}
   if(impMode==='org'){
     let arr=null;
-    try{const j=JSON.parse(t);if(Array.isArray(j))arr=j.map(o=>({zone:o.zone,group:o.group||autoGroup(o.name),name:o.name,title:o.title||''}));
-      else if(j.people){arr=j.people;if(j.records)records=j.records;}}catch(e){}
+    try{const j=JSON.parse(t);if(Array.isArray(j))arr=j.map(o=>({zone:o.zone,group:o.group||autoGroup(o.name),name:o.name,title:o.title||'',active:o.active!==false}));
+      else if(j.people){arr=j.people.map(o=>({...o,active:o.active!==false}));if(j.records)records=j.records;if(j.zoneQuota)zoneQuota=j.zoneQuota;}}catch(e){}
     if(!arr){arr=[];t.split(/\r?\n/).forEach(line=>{const c=line.split(',').map(s=>s.trim());
-      if(c.length>=3&&c[2])arr.push({zone:c[0],group:c[1]||autoGroup(c[2]),name:c[2],title:''});});}
+      if(c.length>=3&&c[2])arr.push({zone:c[0],group:c[1]||autoGroup(c[2]),name:c[2],title:'',active:true});});}
     if(!arr.length){alert('讀不到有效資料');return;}
     if(!confirm('將以 '+arr.length+' 筆取代名單，確定？'))return;
     people=arr;save();renderOrg();closeImport();
@@ -364,7 +614,7 @@ function doImport(){
     records=records.concat(add);save();renderPerf();closeImport();
   }
 }
-function exportAll(){const data=JSON.stringify({people,records});dl(data,'業務系統備份_'+todayStr()+'.json');
+function exportAll(){const data=JSON.stringify({people,records,zoneQuota});dl(data,'業務系統備份_'+todayStr()+'.json');
   document.getElementById('impText').value=data;alert('已產生完整備份。若未跳下載，可開匯入框長按複製。');}
 function exportPerf(){const lines=['日期,姓名,件數,金額'].concat(records.map(r=>`${r.date},${r.name},${r.cnt},${r.amt}`));
   dl(lines.join('\n'),'業績明細_'+todayStr()+'.csv');alert('已匯出業績 CSV。');}
