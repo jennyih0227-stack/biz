@@ -454,13 +454,14 @@ function setFilter(m){filterMode=m;
   renderRank(curTab);}
 
 /* ---- 責任額（月份制；責任額萬元、達成元，各顯各的）---- */
-function qMonthRange(mk){ // 該工作月對應的日期區間（依年度推算，用今年）
+function qMonthRange(mk){ // 達成統計區間＝工作月起訖（與各區業績一致）；未設則退回該月自然月
+  if(workFrom&&workTo)return [workFrom,workTo];
   const y=new Date().getFullYear();
   const mm=String(mk).padStart(2,'0');
   const last=new Date(y,mk,0).getDate();
   return [`${y}-${mm}-01`,`${y}-${mm}-${last}`];
 }
-function zoneAchieveByMonth(mk){ // 各區達成金額（元），依該月
+function zoneAchieveByMonth(mk){ // 各區達成金額（元），依工作月起訖
   const [a,b]=qMonthRange(mk);
   const m={};
   records.filter(r=>r.date>=a&&r.date<=b).forEach(r=>{
@@ -482,7 +483,11 @@ function renderQuota(){
   let h='<div class="panel"><h1>各區責任額（萬元）</h1>';
   // 月份切換
   h+='<div class="months mxwide">'+[7,8,9,10,11,12].map(mk=>`<button class="mbtn ${mk===qMonth?'active':''}" onclick="setQMonth(${mk})">${mk}月</button>`).join('')+'</div>';
-  h+='<div class="rankhint">責任額單位<b>萬元</b>（淡黃格可改）；達成＝該月業績加總換算萬元；達成率＝達成÷責任額。</div>';
+  // 工作月起訖（達成統計區間，與各區業績一致）
+  h+=`<div class="daterange" style="margin-bottom:10px"><span style="color:#C9A84C;font-size:12px">工作月起訖</span>`+
+     `<input type="date" value="${workFrom}" onchange="workFrom=this.value;save();renderQuota()"><span>~</span>`+
+     `<input type="date" value="${workTo}" onchange="workTo=this.value;save();renderQuota()"></div>`;
+  h+='<div class="rankhint">選月份＝選該月責任額目標（萬元）；達成＝<b>工作月起訖</b>區間各區業績加總，與「各區業績」頁同期間、數字一致。</div>';
   h+='<div class="qrow qhead"><span class="qz">區</span><span class="qq">責任額<br>(萬)</span><span class="qa">達成<br>(萬)</span><span class="qd">達成率</span></div>';
   let tA=0;
   zones.forEach(z=>{
