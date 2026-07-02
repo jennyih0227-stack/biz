@@ -290,6 +290,9 @@ function autoGroup(name){return name&&name.length>1?name.slice(1)+'組':(name?na
 function isLeader(p){const key=p.group.endsWith('組')?p.group.slice(0,-1):p.group;return p.name.slice(1)===key||p.name===key;}
 function zoneOrder(){const zs=new Set(people.map(p=>p.zone));return[...ZONES.filter(z=>zs.has(z)),...[...zs].filter(z=>!ZONES.includes(z))];}
 function findP(name){return people.find(p=>p.name===name);}
+// 業績計績歸屬：明細保留原名，統計時把下列人員併入指定主管
+const CREDIT_MERGE={'甘修全':'陳春美','甘佑全':'陳春美'};
+function creditName(name){return CREDIT_MERGE[name]||name;}
 
 function switchTab(v){
   curTab=v;
@@ -404,7 +407,8 @@ function filterLabel(){
 function aggByName(){
   const m={};
   records.filter(r=>inRange(r.date)).forEach(r=>{
-    if(!m[r.name])m[r.name]={amt:0,cnt:0};m[r.name].amt+=(r.amt||0);m[r.name].cnt+=(r.cnt||0);
+    const nm=creditName(r.name);
+    if(!m[nm])m[nm]={amt:0,cnt:0};m[nm].amt+=(r.amt||0);m[nm].cnt+=(r.cnt||0);
   });
   return m;
 }
@@ -483,7 +487,7 @@ function zoneAchieveByMonth(mk){ // 各區達成金額（元），依工作月�
   const [a,b]=qMonthRange(mk);
   const m={};
   records.filter(r=>r.date>=a&&r.date<=b).forEach(r=>{
-    const p=findP(r.name); if(!p)return;
+    const p=findP(creditName(r.name)); if(!p)return;
     m[p.zone]=(m[p.zone]||0)+(r.amt||0);
   });
   return m;
@@ -591,7 +595,8 @@ function zLabel(){
 function zAgg(){
   const m={};
   records.filter(r=>zInRange(r.date)).forEach(r=>{
-    if(!m[r.name])m[r.name]={amt:0,cnt:0};m[r.name].amt+=(r.amt||0);m[r.name].cnt+=(r.cnt||0);
+    const nm=creditName(r.name);
+    if(!m[nm])m[nm]={amt:0,cnt:0};m[nm].amt+=(r.amt||0);m[nm].cnt+=(r.cnt||0);
   });
   return m;
 }
@@ -657,7 +662,8 @@ function topLabel(){
 function topAgg(){
   const m={};
   records.filter(r=>topInRange(r.date)).forEach(r=>{
-    if(!m[r.name])m[r.name]={amt:0,cnt:0};m[r.name].amt+=(r.amt||0);m[r.name].cnt+=(r.cnt||0);
+    const nm=creditName(r.name);
+    if(!m[nm])m[nm]={amt:0,cnt:0};m[nm].amt+=(r.amt||0);m[nm].cnt+=(r.cnt||0);
   });
   return m;
 }
@@ -788,8 +794,8 @@ function renderMatrix(){
     });
     h+=`<td class="sumc">${mA.toLocaleString()}<span class="c">${mC}件</span></td></tr>`;
   });
-  h+='</tbody><tfoot><tr><th class="namec">'+(mxMode==='date'?'全員每日合計':'本頁每日合計')+'</th>';
-  const footPeople=mxMode==='date'?people.map(p=>p.name):pp;
+  h+='</tbody><tfoot><tr><th class="namec">全員每日合計</th>';
+  const footPeople=people.map(p=>p.name); // 一律全員，跨頁不受分頁影響
   const fS={},fC={};showDates.forEach(d=>{fS[d]=0;fC[d]=0;});
   footPeople.forEach(name=>{showDates.forEach(d=>{const r=mxGetCell(name,d);if(r){fS[d]+=r.amt;fC[d]+=r.cnt;}});});
   let gA=0,gC=0;records.forEach(r=>{if(r.date>=mxMonth+'-01'&&r.date<=mxMonth+'-31'){gA+=r.amt;gC+=r.cnt;}});
