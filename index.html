@@ -57,6 +57,8 @@ h1{font-family:var(--serif);font-size:20px;color:#C9A84C;letter-spacing:1px;marg
 .prow .act button{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;font-size:14px;}
 .b-edit{background:#243a5e;color:#cfe;}
 .b-del{background:#3a2230;color:#e89;border:1px solid #6a3550 !important;}
+.b-clear{background:#4a1e1e;color:#ff9a8a;border:1px solid #8a3a2a !important;font-weight:700;}
+.b-clear:active{background:#6a2020;}
 /* 日期篩選 */
 .filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
 .fbtn{padding:8px 14px;border-radius:18px;border:1px solid #2E4A7A;background:#0f1626;color:#cfe;font-size:13px;cursor:pointer;font-weight:700;}
@@ -436,7 +438,8 @@ function renderPerf(){
     '<button class="b-imp" onclick="importPerfXlsx()">⬇ 匯入Excel</button>'+
     '<button class="b-exp" onclick="exportPerfXlsx()">⬆ 匯出Excel</button>'+
     '<button class="b-imp" onclick="openImport(\'perf\')">⬇ 貼上匯入</button>'+
-    '<button class="b-exp" onclick="exportPerf()">⬆ 匯出CSV</button></div>';
+    '<button class="b-exp" onclick="exportPerf()">⬆ 匯出CSV</button>'+
+    '<button class="b-clear" onclick="clearAllPerf()">🗑 清空全部業績</button></div>';
   // 搜尋列
   h+=`<div class="searchbar"><input id="perfSearchInput" placeholder="🔍 搜尋姓名 / 日期（如 07-01）" value="${perfSearch}" oninput="perfSearch=this.value;renderPerfList()">`+
      (perfSearch?`<button class="clr" onclick="perfSearch='';renderPerfList()">✕</button>`:'')+`</div>`;
@@ -491,6 +494,23 @@ function savePerf(){
   save();renderPerf();closePerf();
 }
 function delPerf(i){if(confirm('刪除這筆業績？')){records.splice(i,1);save();renderPerf();}}
+// 清空全部業績（含每日與週業績）：先自動備份，再要求輸入「清空」確認
+function clearAllPerf(){
+  const n=records.length;
+  if(!n){alert('目前沒有任何業績可清除。');return;}
+  if(!confirm('即將清空全部業績，共 '+n+' 筆（含每日與週業績）。\n\n系統會先自動匯出一份完整備份檔，之後才清空。要繼續嗎？'))return;
+  // 步驟1：自動備份
+  try{exportAll();}catch(e){}
+  // 步驟2：輸入確認字，避免誤刪
+  const ans=prompt('備份已產生。若確定要清空全部 '+n+' 筆業績，請輸入「清空」二字後按確定：\n（名單、責任額、工作月設定不會被刪除）');
+  if(ans==='清空'){
+    records=[];
+    save();renderPerf();
+    alert('已清空全部業績（共刪除 '+n+' 筆）。名單與設定保留。若要復原，可用剛才的備份檔透過「還原備份」匯入。');
+  }else{
+    alert('已取消，未清空任何業績。');
+  }
+}
 
 /* ================= 週業績（逐人輸入，跨工作月自動用區間拆兩段）================= */
 let weekName='';                 // 目前選定的人
