@@ -529,6 +529,9 @@ function renderWeek(){
 
   let h='<div class="panel"><h1>週業績輸入</h1>'+
     '<p class="note">依「工作月起訖」自動切週：第一週從工作月起始日算到該週星期日，中間為週一～週日，最後一週到工作月最後一天為止。選夥伴與週別，輸入該週 FYC 與件數。此頁與「週表格」共用同一批資料。</p>';
+  h+='<div class="bar" style="margin-bottom:10px">'+
+    '<button class="b-imp" onclick="importWeekXlsx()">⬇ 匯入Excel（區間式）</button>'+
+    '<button class="b-exp" onclick="exportWeekTemplate()">⬆ 匯出範本</button></div>';
   h+=`<div class="wkpick"><label>夥伴</label><select id="wkName" onchange="weekName=this.value;renderWeek()"><option value="">— 請選擇 —</option>${opts}</select></div>`;
 
   // 依工作月切週（新規則）
@@ -589,6 +592,63 @@ function saveWeek(segs){
   alert(changed?'已儲存週業績。':'未變更。');
 }
 function delWeekRec(idx){if(confirm('刪除這筆週業績？')){records.splice(idx,1);save();renderWeek();}}
+
+/* ---- 週業績 Excel 匯入（區間式：起日/迄日/姓名/件數/金額）＋範本匯出 ---- */
+function normDateCell(v){
+  if(v instanceof Date){return v.getFullYear()+'-'+String(v.getMonth()+1).padStart(2,'0')+'-'+String(v.getDate()).padStart(2,'0');}
+  let s=String(v).trim();
+  // 支援 20260625 或 2026/6/25 或 2026-6-25
+  if(/^\d{8}$/.test(s))return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8);
+  const m=s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+  if(m)return m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0');
+  return s;
+}
+function importWeekXlsx(){pickFile('.xlsx,.xls',f=>readXlsx(f,wb=>{
+  // 優先找名為「週業績」的表，否則用第一張
+  let sh=wb.SheetNames.find(n=>/週/.test(n))||wb.SheetNames[0];
+  const rows=XLSX.utils.sheet_to_json(wb.Sheets[sh],{header:1,blankrows:false});
+  const parsed=[];
+  rows.forEach((c,i)=>{
+    if(!c||c.length<5)return;
+    // 略過表頭
+    if(i===0&&(String(c[0]).includes('起')||String(c[2]).includes('姓名')))return;
+    const from=normDateCell(c[0]),to=normDateCell(c[1]),name=String(c[2]).trim();
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(from)||!/^\d{4}-\d{2}-\d{2}$/.test(to)||!name)return;
+    const cnt=parseFloat(String(c[3]).replace(/,/g,''))||0;
+    const amt=parseFloat(String(c[4]).replace(/,/g,''))||0;
+    parsed.push({from,to,name,cnt,amt});
+  });
+  if(!parsed.length){alert('讀不到有效資料。請確認欄位為：起日／迄日／姓名／件數／金額。');return;}
+  // 檢查名單是否對得上
+  const known=new Set(people.map(p=>p.name));
+  const unknown=[...new Set(parsed.filter(r=>!known.has(r.name)).map(r=>r.name))];
+  let msg='將匯入 '+parsed.length+' 筆週業績（同人同週以新的為準，覆蓋舊值）。';
+  if(unknown.length)msg+='\n\n⚠️ 下列姓名不在名單，仍會匯入但不會出現在排名：\n'+unknown.join('、');
+  if(!confirm(msg+'\n\n確定匯入？'))return;
+  let add=0,upd=0;
+  parsed.forEach(r=>{
+    const ex=findWeekRec(r.name,r.from,r.to);
+    if(ex){ex.amt=r.amt;ex.cnt=r.cnt;upd++;}                 // 覆蓋
+    else{records.push({date:r.from,wto:r.to,name:r.name,amt:r.amt,cnt:r.cnt,src:WEEK_TAG});add++;}
+  });
+  save();renderWeek();
+  alert('匯入完成：新增 '+add+' 筆、覆蓋 '+upd+' 筆。');
+}));}
+
+function exportWeekTemplate(){
+  // 以目前工作月的週別為範例列出（每人每週一列，數字留空）
+  const weeks=(typeof getWeeks==='function')?getWeeks():[];
+  const aoa=[['起日','迄日','姓名','件數','金額']];
+  if(weeks.length&&people.length){
+    weeks.forEach(w=>people.forEach(p=>aoa.push([w.from,w.to,p.name,'',''])));
+  }else{
+    aoa.push(['2026-06-25','2026-06-28','範例姓名','','']);
+  }
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols']=[{wch:12},{wch:12},{wch:12},{wch:8},{wch:14}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'週業績');
+  saveXlsx(wb,'週業績匯入範本_'+todayStr()+'.xlsx');
+}
 
 /* ================= 週表格（一個工作月切成 W1~W5，每週可調日期，與週業績共用資料）================= */
 let wtName='';                    // 週表格目前選定的人（空=全體逐列）
