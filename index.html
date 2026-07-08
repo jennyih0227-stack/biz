@@ -108,6 +108,14 @@ textarea{width:100%;height:150px;padding:10px;border-radius:8px;border:1px solid
 .ordbtn:active{background:#C9A84C;color:#1B2A4A;}
 .ordbtn.dis{opacity:.25;cursor:default;}
 .zmrow .zmt{margin-left:6px;font-size:11px;color:#E0C868;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);padding:1px 6px;border-radius:6px;font-weight:700;vertical-align:middle;}
+.t3menu{background:#16233d;border:1px solid #2a3a5a;border-radius:12px;padding:14px;margin-top:6px;}
+.t3menu .t3mt{color:#C9A84C;font-weight:700;font-size:14px;margin-bottom:10px;text-align:center;}
+.t3btn{display:block;width:100%;padding:14px;margin-bottom:10px;border-radius:10px;border:none;font-weight:700;font-size:15px;cursor:pointer;background:#243a5e;color:#fff;}
+
+.t3btn.t3gold{background:linear-gradient(135deg,#C9A84C,#8f6a22);color:#1B2A4A;}
+.t3sep{color:#7d8aa5;font-size:12px;text-align:center;margin:6px 0;}
+.t3btn:last-child{margin-bottom:0;}
+
 .wkpick{display:flex;align-items:center;gap:10px;margin:8px 0;}
 .wkpick label{flex:0 0 48px;color:#C9A84C;font-size:13px;font-weight:700;}
 .wkpick select{flex:1;padding:9px 10px;border-radius:9px;border:1px solid #2E4A7A;background:#0f1626;color:#fff;font-size:15px;}
@@ -971,6 +979,7 @@ function renderRank(kind){
      `<button class="fbtn ${topN===10?'active':''}" onclick="setTopN(10)">前10</button>`+
      `<button class="fbtn ${topN===999?'active':''}" onclick="setTopN(999)">全部</button></div>`;
   h+='<div class="bar" style="margin-bottom:10px"><button class="b-ok" style="flex:1;padding:13px;border-radius:10px;border:none;font-weight:700;cursor:pointer" onclick="makeRankImage()">⬇ 產生排名圖（之後長按儲存）</button></div>';
+  h+='<div class="bar" style="margin-bottom:10px"><button class="b-ok" style="flex:1;padding:13px;border-radius:10px;border:none;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#C9A84C,#A07830);color:#1B2A4A" onclick="top3Menu()">🏆 產生前三名貼圖（LINE）</button></div>';
   h+='<div id="rankResult" class="result"></div>';
   const hasData=items.some(x=>x.amt>0);
   if(!hasData)h+='<div class="emptyhint">此範圍尚無業績資料。</div>';
@@ -983,7 +992,7 @@ function renderRank(kind){
   h+='</div>';
   if(kind==='rPerson'){h+=personTrendPanel();}
   box.innerHTML=h;
-  lastRank={title,items};
+  lastRank={title,items,kind};
   if(kind==='rPerson')drawPersonTrend();
 }
 // ===== 個人趨勢圖（近幾週 FYC 折線，離線 SVG）=====
@@ -1585,6 +1594,365 @@ function makeRankImage(){
   const url=cv.toDataURL('image/png');
   document.getElementById('rankResult').innerHTML='<img src="'+url+'" alt="排名圖"><div class="tip">↑ 長按這張圖 → 加入照片 / 儲存影像</div>';
 }
+
+/* ===== 前三名 LINE 貼圖（兩種風格，離線 Canvas）===== */
+function top3Data(){
+  const all=(lastRank.items||[]).filter(x=>x.amt>0).slice(0,3);
+  return all;
+}
+function makeTop3(style){
+  const items=top3Data();
+  if(items.length<1){alert('此範圍尚無業績資料，無法出圖');return;}
+  let url;
+  if(style==='card')url=drawTop3Card(items);
+  else if(style==='gala')url=drawTop3Gala(items);
+  else if(style==='lux')url=drawTop3Lux(items);
+  else if(style==='focus')url=drawTop3Focus(items);
+  else url=drawTop3Podium(items);
+  document.getElementById('rankResult').innerHTML='<img src="'+url+'" alt="前三名貼圖"><div class="tip">↑ 長按這張圖 → 加入照片 / 儲存影像，即可分享到 LINE</div>';
+}
+// 風格選擇
+function top3Menu(){
+  const box=document.getElementById('rankResult');
+  box.innerHTML='<div class="t3menu">'+
+    '<div class="t3mt">選擇貼圖風格</div>'+
+    '<button class="b-ok t3btn t3gold" onclick="makeTop3(\'gala\')">👑 頒獎典禮風（聚光燈・光芒・皇冠）</button>'+
+    '<button class="b-ok t3btn t3gold" onclick="makeTop3(\'lux\')">🏆 金碧輝煌風（深黑金・獎盃・緞帶）</button>'+
+    '<button class="b-ok t3btn t3gold" onclick="makeTop3(\'focus\')">⭐ 冠軍聚焦風（第一名超大居中）</button>'+
+    '<div class="t3sep">— 經典版 —</div>'+
+    '<button class="b-ok t3btn" onclick="makeTop3(\'podium\')">🥇 領獎台風（深藍金・直式）</button>'+
+    '<button class="b-ok t3btn" onclick="makeTop3(\'card\')">✦ 簡潔卡片風（適合 LINE）</button>'+
+    '</div>';
+}
+
+// 共用：金/銀/銅色
+const T3_MED=[{ring:'#C9A84C',fill:'#D9B84E',name:'王者',med:'🥇'},
+              {ring:'#AEB4BE',fill:'#C2C7CF',name:'菁英',med:'🥈'},
+              {ring:'#C08A56',fill:'#CD9A66',name:'實力',med:'🥉'}];
+
+/* 風格 A：領獎台（仿 PPTX，深藍漸層+金） */
+function drawTop3Podium(items){
+  const W=1080,H=1920;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const ctx=cv.getContext('2d');
+  // 背景深藍漸層
+  let g=ctx.createLinearGradient(0,0,W*0.4,H);g.addColorStop(0,'#16233d');g.addColorStop(.5,'#26406e');g.addColorStop(1,'#16233d');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  // 頂部金條
+  ctx.fillStyle='#C9A84C';ctx.fillRect(0,0,W,16);
+  ctx.textAlign='center';
+  // 標題
+  ctx.fillStyle='#E8E0D0';ctx.font='42px '+SANS;ctx.fillText('躍勇業發組',W/2,130);
+  ctx.fillStyle='#fff';ctx.font='900 88px '+SERIF;ctx.fillText(top3Title(),W/2,240);
+  ctx.fillStyle='#C9A84C';ctx.font='900 60px '+SERIF;ctx.fillText('前 三 名',W/2,330);
+  ctx.fillStyle='#9fb6d8';ctx.font='34px '+SANS;ctx.fillText('統計期間  '+periodText(),W/2,392);
+  // 金色分隔線
+  ctx.strokeStyle='#C9A84C';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(60,430);ctx.lineTo(W-60,430);ctx.stroke();
+  // 三張名次卡
+  const cardX=95,cardW=W-190,cardH=300,gap=40;let yy=500;
+  items.forEach((it,i)=>{
+    const m=T3_MED[i]||T3_MED[2];
+    // 卡片底（淺，圓角）
+    ctx.fillStyle= i===0?'#FBF7EC':'#EEF1F6';
+    rr2(ctx,cardX,yy,cardW,cardH,28);ctx.fill();
+    // 名次圓牌
+    const cy=yy+cardH/2,cx=cardX+150,rad=95;
+    ctx.beginPath();ctx.arc(cx,cy,rad,0,7);ctx.fillStyle=m.fill;ctx.fill();
+    ctx.lineWidth=10;ctx.strokeStyle=m.ring;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='900 96px '+SERIF;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(String(i+1),cx,cy+4);ctx.textBaseline='alphabetic';
+    // 姓名
+    ctx.textAlign='left';ctx.fillStyle='#1B2A4A';ctx.font='900 82px '+SERIF;
+    ctx.fillText(it.name,cardX+290,cy-20);
+    // FYC
+    ctx.fillStyle='#8a6a20';ctx.font='34px '+SANS;ctx.fillText('FYC',cardX+292,cy+58);
+    ctx.fillStyle='#B8892E';ctx.font='900 62px '+SERIF;ctx.fillText(it.amt.toLocaleString(),cardX+400,cy+62);
+    // 稱號膠囊（右上）
+    const tagW=200,tagH=64,tagX=cardX+cardW-tagW-40,tagY=yy+40;
+    ctx.fillStyle=m.ring;rr2(ctx,tagX,tagY,tagW,tagH,32);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='900 40px '+SANS;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(m.name,tagX+tagW/2,tagY+tagH/2+2);ctx.textBaseline='alphabetic';
+    yy+=cardH+gap;
+  });
+  // 底部領獎台（2-1-3）
+  const baseY=1740,pod=[{x:180,w:230,h:120,n:'2',c:'#AEB4BE'},{x:425,w:230,h:180,n:'1',c:'#C9A84C'},{x:670,w:230,h:90,n:'3',c:'#C08A56'}];
+  pod.forEach(p=>{
+    ctx.fillStyle=p.c;rr2(ctx,p.x,baseY-p.h,p.w,p.h,10);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='900 70px '+SERIF;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(p.n,p.x+p.w/2,baseY-p.h/2);ctx.textBaseline='alphabetic';
+  });
+  // 頁尾標語
+  ctx.fillStyle='#C9A84C';ctx.font='36px '+SERIF;ctx.textAlign='center';
+  ctx.fillText('◈  凝聚團隊動能・締造卓越業績  ◈',W/2,1875);
+  return cv.toDataURL('image/png');
+}
+
+/* 風格 B：簡潔卡片（LINE 友善） */
+function drawTop3Card(items){
+  const W=1080,H=1200;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const ctx=cv.getContext('2d');
+  // 背景（乳白，金框）
+  ctx.fillStyle='#FAF6EE';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#C9A84C';ctx.lineWidth=10;rr2(ctx,30,30,W-60,H-60,32);ctx.stroke();
+  ctx.textAlign='center';
+  // 標題區（深藍圓角塊）
+  ctx.fillStyle='#1B2A4A';rr2(ctx,70,70,W-140,180,24);ctx.fill();
+  ctx.fillStyle='#C9A84C';ctx.font='36px '+SANS;ctx.fillText('躍勇業發組 · '+top3Title(),W/2,140);
+  ctx.fillStyle='#fff';ctx.font='900 76px '+SERIF;ctx.fillText('本期前三名',W/2,225);
+  ctx.fillStyle='#8a6a20';ctx.font='32px '+SANS;ctx.fillText(periodText(),W/2,300);
+  // 三列
+  const rowX=90,rowW=W-180,rowH=200,gap=26;let yy=352;
+  items.forEach((it,i)=>{
+    const m=T3_MED[i]||T3_MED[2];
+    ctx.fillStyle='#fff';rr2(ctx,rowX,yy,rowW,rowH,20);ctx.fill();
+    ctx.strokeStyle=m.ring;ctx.lineWidth=4;rr2(ctx,rowX,yy,rowW,rowH,20);ctx.stroke();
+    const cy=yy+rowH/2;
+    // 名次圓
+    ctx.beginPath();ctx.arc(rowX+110,cy,72,0,7);ctx.fillStyle=m.fill;ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='900 70px '+SERIF;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(String(i+1),rowX+110,cy+2);ctx.textBaseline='alphabetic';
+    // 姓名
+    ctx.textAlign='left';ctx.fillStyle='#1B2A4A';ctx.font='900 68px '+SERIF;ctx.fillText(it.name,rowX+220,cy-8);
+    ctx.fillStyle='#9a7a2a';ctx.font='30px '+SANS;ctx.fillText(m.name,rowX+220,cy+50);
+    // 金額（右）
+    ctx.textAlign='right';ctx.fillStyle='#B8892E';ctx.font='900 60px '+SERIF;ctx.fillText(it.amt.toLocaleString(),rowX+rowW-40,cy-2);
+    ctx.fillStyle='#9fb0cc';ctx.font='28px '+SANS;ctx.fillText('FYC / '+it.cnt+' 件',rowX+rowW-40,cy+44);
+    ctx.textAlign='center';
+    yy+=rowH+gap;
+  });
+  // 頁尾（動態置於最後一列下方，避免重疊）
+  const footY=Math.max(yy+56, H-64);
+  ctx.fillStyle='#1B2A4A';ctx.font='34px '+SERIF;ctx.textAlign='center';
+  ctx.fillText('◈ 凝聚團隊動能・締造卓越業績 ◈',W/2,footY);
+  return cv.toDataURL('image/png');
+}
+
+/* ===== 浮誇版共用小工具 ===== */
+function t3Star(ctx,cx,cy,spikes,outer,inner,rot){
+  let rotN=(rot||-Math.PI/2);const step=Math.PI/spikes;ctx.beginPath();
+  for(let i=0;i<spikes;i++){
+    ctx.lineTo(cx+Math.cos(rotN)*outer,cy+Math.sin(rotN)*outer);rotN+=step;
+    ctx.lineTo(cx+Math.cos(rotN)*inner,cy+Math.sin(rotN)*inner);rotN+=step;
+  }
+  ctx.closePath();
+}
+function t3Crown(ctx,cx,cy,w,col){
+  const h=w*0.72;ctx.save();ctx.translate(cx,cy);ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.moveTo(-w/2,h*0.35);ctx.lineTo(-w/2,-h*0.1);
+  ctx.lineTo(-w*0.28,h*0.12);ctx.lineTo(0,-h*0.42);
+  ctx.lineTo(w*0.28,h*0.12);ctx.lineTo(w/2,-h*0.1);
+  ctx.lineTo(w/2,h*0.35);ctx.closePath();ctx.fill();
+  // 底座
+  ctx.fillRect(-w/2,h*0.35,w,h*0.18);
+  // 寶石
+  ctx.fillStyle='#fff';
+  [[-w*0.36,h*0.44],[0,h*0.44],[w*0.36,h*0.44]].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],w*0.05,0,7);ctx.fill();});
+  ctx.restore();
+}
+function t3Trophy(ctx,cx,cy,s,col,dark){
+  ctx.save();ctx.translate(cx,cy);
+  ctx.fillStyle=col;ctx.strokeStyle=dark;ctx.lineWidth=s*0.05;
+  // 杯身
+  ctx.beginPath();ctx.moveTo(-s*0.42,-s*0.55);ctx.lineTo(s*0.42,-s*0.55);
+  ctx.lineTo(s*0.30,s*0.05);ctx.quadraticCurveTo(0,s*0.28,-s*0.30,s*0.05);ctx.closePath();ctx.fill();
+  // 雙耳
+  ctx.lineWidth=s*0.09;ctx.beginPath();ctx.arc(-s*0.42,-s*0.30,s*0.22,Math.PI*0.5,Math.PI*1.5,true);ctx.stroke();
+  ctx.beginPath();ctx.arc(s*0.42,-s*0.30,s*0.22,Math.PI*1.5,Math.PI*0.5,true);ctx.stroke();
+  // 柱＋底座
+  ctx.fillRect(-s*0.07,s*0.20,s*0.14,s*0.22);
+  ctx.fillRect(-s*0.26,s*0.42,s*0.52,s*0.12);
+  ctx.fillRect(-s*0.34,s*0.54,s*0.68,s*0.10);
+  ctx.restore();
+}
+function t3Sparkles(ctx,W,H,n,seed){
+  let s=seed||1;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};
+  for(let i=0;i<n;i++){
+    const x=rnd()*W,y=rnd()*H,r=rnd()*3+1,a=rnd()*0.5+0.2;
+    ctx.fillStyle='rgba(255,230,150,'+a+')';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+  }
+}
+
+/* 浮誇一：頒獎典禮風（聚光燈+光芒放射+皇冠+紫金） */
+function drawTop3Gala(items){
+  const W=1080,H=1920,cx=W/2;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  // 深紫藍漸層底
+  let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#2a1a4a');g.addColorStop(.45,'#1a1636');g.addColorStop(1,'#0d0a1f');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  // 頂部聚光燈光錐
+  ctx.save();ctx.globalAlpha=.5;let sg=ctx.createRadialGradient(cx,120,40,cx,760,760);
+  sg.addColorStop(0,'rgba(255,225,150,.85)');sg.addColorStop(.5,'rgba(201,168,76,.18)');sg.addColorStop(1,'rgba(201,168,76,0)');
+  ctx.fillStyle=sg;ctx.beginPath();ctx.moveTo(cx,60);ctx.lineTo(cx-360,900);ctx.lineTo(cx+360,900);ctx.closePath();ctx.fill();ctx.restore();
+  // 放射光芒（金）
+  ctx.save();ctx.translate(cx,470);ctx.globalAlpha=.16;
+  for(let i=0;i<36;i++){ctx.rotate(Math.PI/18);ctx.fillStyle=i%2?'#C9A84C':'#8f6ad0';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-26,900);ctx.lineTo(26,900);ctx.closePath();ctx.fill();}
+  ctx.restore();
+  t3Sparkles(ctx,W,H,120,7);
+  // 皇冠
+  t3Crown(ctx,cx,190,190,'#F2D06B');
+  // 標題
+  ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 92px '+SERIF;
+  ctx.shadowColor='rgba(201,168,76,.9)';ctx.shadowBlur=24;ctx.fillText('FYC 冠軍榜',cx,360);ctx.shadowBlur=0;
+  ctx.fillStyle='#E8D9A8';ctx.font='40px '+SANS;ctx.fillText('躍勇業發組 · '+top3Title(),cx,420);
+  ctx.fillStyle='#b7a9d8';ctx.font='30px '+SANS;ctx.fillText(periodText(),cx,470);
+  // 冠軍大獎章（置中）
+  const champ=items[0];
+  const ccx=cx,ccy=680,cr=150;
+  // 光暈
+  let hg=ctx.createRadialGradient(ccx,ccy,20,ccx,ccy,240);hg.addColorStop(0,'rgba(255,220,120,.6)');hg.addColorStop(1,'rgba(255,220,120,0)');
+  ctx.fillStyle=hg;ctx.beginPath();ctx.arc(ccx,ccy,240,0,7);ctx.fill();
+  // 星芒
+  ctx.fillStyle='rgba(255,235,170,.9)';t3Star(ctx,ccx,ccy,16,cr+70,cr+22);ctx.fill();
+  // 圓牌
+  let mg=ctx.createLinearGradient(ccx-cr,ccy-cr,ccx+cr,ccy+cr);mg.addColorStop(0,'#F6E08A');mg.addColorStop(.5,'#C9A84C');mg.addColorStop(1,'#9c7a2a');
+  ctx.beginPath();ctx.arc(ccx,ccy,cr,0,7);ctx.fillStyle=mg;ctx.fill();
+  ctx.lineWidth=8;ctx.strokeStyle='#fff7e0';ctx.stroke();
+  ctx.fillStyle='#5a3d0a';ctx.font='900 120px '+SERIF;ctx.textBaseline='middle';ctx.fillText('1',ccx,ccy+6);ctx.textBaseline='alphabetic';
+  // 冠軍姓名＋金額
+  ctx.fillStyle='#fff';ctx.font='900 96px '+SERIF;ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=12;ctx.fillText(champ.name,cx,940);ctx.shadowBlur=0;
+  ctx.fillStyle='#F2D06B';ctx.font='900 76px '+SERIF;ctx.fillText('FYC '+champ.amt.toLocaleString(),cx,1030);
+  // 二三名（左右卡）
+  const others=[items[1],items[2]];const bx=[110,W/2+30],bw=W/2-140,by=1140,bh=560;
+  others.forEach((it,idx)=>{
+    if(!it)return;const m=T3_MED[idx+1];const x=bx[idx];
+    // 卡
+    let cg=ctx.createLinearGradient(x,by,x,by+bh);cg.addColorStop(0,'rgba(255,255,255,.12)');cg.addColorStop(1,'rgba(255,255,255,.04)');
+    ctx.fillStyle=cg;rr2(ctx,x,by,bw,bh,28);ctx.fill();
+    ctx.lineWidth=3;ctx.strokeStyle=m.ring;rr2(ctx,x,by,bw,bh,28);ctx.stroke();
+    const mcx=x+bw/2,mcy=by+170,mr=110;
+    ctx.beginPath();ctx.arc(mcx,mcy,mr,0,7);ctx.fillStyle=m.fill;ctx.fill();
+    ctx.lineWidth=7;ctx.strokeStyle='#fff';ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='900 110px '+SERIF;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(idx+2),mcx,mcy+4);ctx.textBaseline='alphabetic';
+    ctx.fillStyle='#fff';ctx.font='900 62px '+SERIF;ctx.fillText(it.name,mcx,by+380);
+    ctx.fillStyle=m.ring;ctx.font='900 30px '+SANS;ctx.fillText(m.name,mcx,by+430);
+    ctx.fillStyle='#F2D06B';ctx.font='900 46px '+SERIF;ctx.fillText(it.amt.toLocaleString(),mcx,by+500);
+  });
+  // 頁尾
+  ctx.fillStyle='#C9A84C';ctx.font='34px '+SERIF;ctx.textAlign='center';ctx.fillText('◈  凝聚團隊動能・締造卓越業績  ◈',cx,1850);
+  return cv.toDataURL('image/png');
+}
+
+/* 浮誇二：金碧輝煌風（深黑金+獎盃+緞帶+發光金粒） */
+function drawTop3Lux(items){
+  const W=1080,H=1920,cx=W/2;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  // 深黑金漸層
+  let g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#1c1608');g.addColorStop(.5,'#2e2410');g.addColorStop(1,'#100c04');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  t3Sparkles(ctx,W,H,180,3);
+  // 金框
+  ctx.strokeStyle='#C9A84C';ctx.lineWidth=6;rr2(ctx,40,40,W-80,H-80,36);ctx.stroke();
+  ctx.lineWidth=2;ctx.strokeStyle='rgba(246,224,138,.6)';rr2(ctx,54,54,W-108,H-108,30);ctx.stroke();
+  // 獎盃
+  t3Trophy(ctx,cx,230,260,'#F2D06B','#9c7a2a');
+  // 標題（金色漸層字）
+  ctx.textAlign='center';
+  let tg=ctx.createLinearGradient(cx-300,0,cx+300,0);tg.addColorStop(0,'#F6E08A');tg.addColorStop(.5,'#fff3cf');tg.addColorStop(1,'#C9A84C');
+  ctx.fillStyle=tg;ctx.font='900 100px '+SERIF;ctx.shadowColor='rgba(201,168,76,.7)';ctx.shadowBlur=20;
+  ctx.fillText('榮譽金榜',cx,470);ctx.shadowBlur=0;
+  ctx.fillStyle='#E8D9A8';ctx.font='38px '+SANS;ctx.fillText('躍勇業發組 · '+top3Title(),cx,528);
+  ctx.fillStyle='#a89666';ctx.font='30px '+SANS;ctx.fillText(periodText(),cx,576);
+  // 三列金榜（緞帶名次牌）
+  const rowX=90,rowW=W-180,rowH=340,gap=36;let yy=650;
+  items.forEach((it,i)=>{
+    const m=T3_MED[i];
+    // 卡（深色玻璃＋金邊）
+    let cg=ctx.createLinearGradient(rowX,yy,rowX,yy+rowH);cg.addColorStop(0,'rgba(60,48,20,.85)');cg.addColorStop(1,'rgba(30,24,10,.85)');
+    ctx.fillStyle=cg;rr2(ctx,rowX,yy,rowW,rowH,26);ctx.fill();
+    ctx.lineWidth=3;ctx.strokeStyle=m.ring;rr2(ctx,rowX,yy,rowW,rowH,26);ctx.stroke();
+    const cy=yy+rowH/2;
+    // 緞帶名次章（左）
+    const rx=rowX+140,ry=cy;
+    let rg=ctx.createRadialGradient(rx,ry-10,10,rx,ry,110);rg.addColorStop(0,m.fill);rg.addColorStop(1,m.ring);
+    ctx.beginPath();ctx.arc(rx,ry,100,0,7);ctx.fillStyle=rg;ctx.fill();
+    ctx.lineWidth=6;ctx.strokeStyle='#fff7e0';ctx.stroke();
+    // 緞帶尾
+    ctx.fillStyle=m.ring;ctx.beginPath();ctx.moveTo(rx-46,ry+80);ctx.lineTo(rx-20,ry+180);ctx.lineTo(rx,ry+140);ctx.lineTo(rx+20,ry+180);ctx.lineTo(rx+46,ry+80);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='900 92px '+SERIF;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(i+1),rx,ry+2);ctx.textBaseline='alphabetic';
+    // 姓名＋稱號＋金額
+    ctx.textAlign='left';
+    ctx.fillStyle='#fff';ctx.font='900 78px '+SERIF;ctx.fillText(it.name,rowX+280,cy-30);
+    ctx.fillStyle=m.ring;ctx.font='900 34px '+SANS;ctx.fillText('◆ '+m.name,rowX+284,cy+26);
+    let ag=ctx.createLinearGradient(rowX+280,0,rowX+rowW,0);ag.addColorStop(0,'#F6E08A');ag.addColorStop(1,'#C9A84C');
+    ctx.fillStyle=ag;ctx.font='900 66px '+SERIF;ctx.fillText('FYC '+it.amt.toLocaleString(),rowX+284,cy+100);
+    ctx.textAlign='center';
+    yy+=rowH+gap;
+  });
+  // 頁尾
+  ctx.fillStyle='#C9A84C';ctx.font='34px '+SERIF;ctx.fillText('◈  誠毅傳承・締造卓越業績  ◈',cx,H-70);
+  return cv.toDataURL('image/png');
+}
+
+/* 浮誇三：冠軍聚焦風（第一名超大居中，二三名底部小） */
+function drawTop3Focus(items){
+  const W=1080,H=1920,cx=W/2;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  // 放射底（中心亮）
+  let g=ctx.createRadialGradient(cx,720,60,cx,720,1100);g.addColorStop(0,'#28406e');g.addColorStop(.6,'#182a48');g.addColorStop(1,'#0d1626');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  // 放射線
+  ctx.save();ctx.translate(cx,720);ctx.globalAlpha=.12;
+  for(let i=0;i<48;i++){ctx.rotate(Math.PI/24);ctx.fillStyle=i%2?'#C9A84C':'#4a6ea8';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-18,1200);ctx.lineTo(18,1200);ctx.closePath();ctx.fill();}
+  ctx.restore();
+  t3Sparkles(ctx,W,H,120,11);
+  ctx.textAlign='center';
+  // 頂標題
+  ctx.fillStyle='#C9A84C';ctx.font='44px '+SANS;ctx.fillText('躍勇業發組 · '+top3Title(),cx,150);
+  ctx.fillStyle='#fff';ctx.font='900 110px '+SERIF;ctx.shadowColor='rgba(201,168,76,.8)';ctx.shadowBlur=22;ctx.fillText('本 期 冠 軍',cx,270);ctx.shadowBlur=0;
+  ctx.fillStyle='#9fb6d8';ctx.font='30px '+SANS;ctx.fillText(periodText(),cx,330);
+  // 皇冠＋冠軍超大圓牌
+  const champ=items[0],ccy=720,cr=230;
+  t3Crown(ctx,cx,ccy-cr-30,230,'#F2D06B');
+  let hg=ctx.createRadialGradient(cx,ccy,40,cx,ccy,360);hg.addColorStop(0,'rgba(255,220,120,.55)');hg.addColorStop(1,'rgba(255,220,120,0)');
+  ctx.fillStyle=hg;ctx.beginPath();ctx.arc(cx,ccy,360,0,7);ctx.fill();
+  ctx.fillStyle='rgba(255,235,170,.85)';t3Star(ctx,cx,ccy,20,cr+90,cr+30);ctx.fill();
+  let mg=ctx.createLinearGradient(cx-cr,ccy-cr,cx+cr,ccy+cr);mg.addColorStop(0,'#F6E08A');mg.addColorStop(.5,'#C9A84C');mg.addColorStop(1,'#96741f');
+  ctx.beginPath();ctx.arc(cx,ccy,cr,0,7);ctx.fillStyle=mg;ctx.fill();
+  ctx.lineWidth=10;ctx.strokeStyle='#fff7e0';ctx.stroke();
+  ctx.fillStyle='#5a3d0a';ctx.font='900 200px '+SERIF;ctx.textBaseline='middle';ctx.fillText('1',cx,ccy+8);ctx.textBaseline='alphabetic';
+  // 冠軍名＋額
+  ctx.fillStyle='#fff';ctx.font='900 128px '+SERIF;ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=14;ctx.fillText(champ.name,cx,1120);ctx.shadowBlur=0;
+  let ag=ctx.createLinearGradient(cx-260,0,cx+260,0);ag.addColorStop(0,'#F6E08A');ag.addColorStop(1,'#C9A84C');
+  ctx.fillStyle=ag;ctx.font='900 96px '+SERIF;ctx.fillText('FYC '+champ.amt.toLocaleString(),cx,1230);
+  // 二三名（底部並排小卡）
+  const others=[items[1],items[2]];const bx=[110,W/2+30],bw=W/2-140,by=1360,bh=420;
+  others.forEach((it,idx)=>{
+    if(!it)return;const m=T3_MED[idx+1];const x=bx[idx];
+    ctx.fillStyle='rgba(255,255,255,.08)';rr2(ctx,x,by,bw,bh,26);ctx.fill();
+    ctx.lineWidth=3;ctx.strokeStyle=m.ring;rr2(ctx,x,by,bw,bh,26);ctx.stroke();
+    const mcx=x+bw/2,mcy=by+140,mr=100;
+    ctx.beginPath();ctx.arc(mcx,mcy,mr,0,7);ctx.fillStyle=m.fill;ctx.fill();
+    ctx.lineWidth=6;ctx.strokeStyle='#fff';ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='900 100px '+SERIF;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(idx+2),mcx,mcy+2);ctx.textBaseline='alphabetic';
+    ctx.fillStyle='#fff';ctx.font='900 58px '+SERIF;ctx.fillText(it.name,mcx,by+310);
+    ctx.fillStyle='#F2D06B';ctx.font='900 44px '+SERIF;ctx.fillText(it.amt.toLocaleString(),mcx,by+372);
+  });
+  // 頁尾
+  ctx.fillStyle='#C9A84C';ctx.font='34px '+SERIF;ctx.fillText('◈  凝聚團隊動能・締造卓越業績  ◈',cx,1860);
+  return cv.toDataURL('image/png');
+}
+
+// 期間文字（用目前篩選）
+function periodText(){
+  if(filterMode==='today')return todayStr();
+  if(filterMode==='week')return weekStart()+' ～ '+weekEnd();
+  if(filterMode==='work')return (workFrom||'起')+' ～ '+(workTo||'迄');
+  return (rangeFrom||'起')+' ～ '+(rangeTo||'迄');
+}
+function workMonthNum(){
+  const d=(workTo&&/^\d{4}-\d{2}-\d{2}$/.test(workTo))?workTo:todayStr();
+  return parseInt(d.slice(5,7),10);
+}
+function rankTypeTitle(){
+  const k=lastRank.kind||'rPerson';
+  if(k==='rGroup')return '主管組排行';
+  if(k==='rRep')return '業代排行';
+  return '個人排行';
+}
+function top3Title(){return workMonthNum()+'月　'+rankTypeTitle();}
+
 
 load();renderOrg();
 
